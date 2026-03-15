@@ -1,152 +1,93 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nataobao</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --red: #ff3e3e; --bg: #000; --card: #111; --gray: #888; --green: #2ecc71; }
+        :root { --red: #ff3e3e; --bg: #000; --card: #111; --gray: #888; }
         body { font-family: sans-serif; background: var(--bg); color: #fff; margin: 0; padding: 15px; padding-bottom: 80px; }
         .card { background: var(--card); border: 1px solid #222; border-radius: 15px; padding: 15px; margin-bottom: 15px; }
         .nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #0a0a0a; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #222; }
-        .nav-btn { color: var(--gray); font-size: 11px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .nav-btn { color: var(--gray); font-size: 11px; font-weight: bold; cursor: pointer; border: none; background: none; }
         .nav-btn.active { color: var(--red); }
-        .btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; margin-bottom: 10px; }
-        .btn-red { background: var(--red); color: #fff; }
-        input, textarea, select { width: 100%; background: #1a1a1a; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 10px; margin-bottom: 10px; box-sizing: border-box; }
+        .btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        input, select, textarea { width: 100%; background: #1a1a1a; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 10px; margin-bottom: 10px; box-sizing: border-box; }
         .hidden { display: none !important; }
-        .parcel { padding: 10px; background: #000; border-radius: 10px; border-left: 4px solid #333; margin-top: 10px; font-size: 13px; }
-        img { max-width: 100%; border-radius: 10px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
-    <div id="auth-screen" class="hidden">
-        <h2 style="text-align:center; color:var(--red)">NATAOBAO</h2>
-        <input type="text" id="reg_n" placeholder="Имя">
-        <input type="text" id="reg_c" placeholder="Код (напр. A105)">
-        <button class="btn btn-red" onclick="sendToBot('register')">Создать аккаунт</button>
+    <div id="auth" class="hidden">
+        <h2>РЕГИСТРАЦИЯ</h2>
+        <input type="text" id="rn" placeholder="Имя"><input type="text" id="rc" placeholder="Код">
+        <button class="btn" style="background:var(--red); color:#fff" onclick="send('register')">Создать</button>
     </div>
 
-    <div id="main-content">
+    <div id="main">
         <div id="p-profile" class="page">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <b id="u-name">...</b>
-                <button onclick="sendToBot('refresh')" style="background:none; color:var(--red); border:none; font-size:11px;">🔄 ОБНОВИТЬ</button>
-            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:15px;"><b id="un">...</b><button onclick="send('refresh')" style="color:var(--red); background:none; border:none;">🔄</button></div>
             <div class="card">
-                <div id="u-code" style="color:var(--red); font-weight:bold; margin-bottom:10px;">ID: ---</div>
+                <div id="uc" style="color:var(--red); font-weight:bold; margin-bottom:10px;">ID: ---</div>
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; text-align:center;">
-                    <div style="background:#000; padding:10px; border-radius:10px;"><span id="c-all" style="font-size:18px;">0</span><br><small>ПОСЫЛОК</small></div>
-                    <div style="background:#000; padding:10px; border-radius:10px;"><span id="c-sum" style="color:var(--green); font-size:18px;">0₽</span><br><small>ОПЛАТА</small></div>
+                    <div style="background:#000; padding:10px; border-radius:10px;"><span id="ca">0</span><br><small>ПОСЫЛОК</small></div>
+                    <div style="background:#000; padding:10px; border-radius:10px;"><span id="cs" style="color:#2ecc71">0₽</span><br><small>ОПЛАТА</small></div>
                 </div>
             </div>
-            <div class="card" style="font-size:12px;">
-                <div style="margin-bottom:8px;">📍 <b>Адрес:</b> <span id="inf-adr">...</span></div>
-                <div>💳 <b>Реквизиты:</b> <span id="inf-rek">...</span></div>
-            </div>
-            <div id="parcel-list"></div>
+            <div id="plist"></div>
         </div>
-
-        <div id="p-news" class="page hidden">
-            <h3 style="margin-left:5px;">Уведомления</h3>
-            <div id="news-list"></div>
-        </div>
-
+        <div id="p-news" class="page hidden"><h3>Новости</h3><div id="nlist"></div></div>
         <div id="p-admin" class="page hidden">
             <div class="card">
-                <input type="text" id="adm_c" placeholder="Код клиента">
-                <input type="number" id="adm_w" placeholder="Вес">
-                <select id="adm_s">
-                    <option value="В ПУТИ">🚚 В ПУТИ</option>
-                    <option value="ПРИБЫЛ В ЯКУТСК">🏠 ПРИБЫЛ В ЯКУТСК</option>
-                    <option value="ГОТОВ К ВЫДАЧЕ">🏁 ГОТОВ К ВЫДАЧЕ</option>
-                </select>
-                <button class="btn btn-red" onclick="sendToBot('update_parcel')">Обновить статус</button>
-            </div>
-            <div class="card">
-                <textarea id="msg_t" placeholder="Текст новости"></textarea>
-                <button class="btn" style="background:var(--green); color:#fff" onclick="sendToBot('broadcast')">Разослать всем</button>
-                <button class="btn" style="background:#222; color:var(--red); font-size:10px;" onclick="sendToBot('clear_news')">Удалить все новости</button>
+                <input type="text" id="ac" placeholder="Код клиента"><input type="number" id="aw" placeholder="Вес">
+                <select id="as"><option value="В ПУТИ">🚚 В ПУТИ</option><option value="ГОТОВ">🏁 ГОТОВ</option></select>
+                <button class="btn" style="background:var(--red); color:#fff" onclick="send('update_parcel')">Добавить</button>
             </div>
         </div>
     </div>
 
     <div class="nav">
-        <div class="nav-btn active" onclick="showP('profile', this)">Профиль</div>
-        <div class="nav-btn" onclick="showP('news', this)">Новости</div>
-        <div id="adm-btn" class="nav-btn hidden" onclick="showP('admin', this)">Админ</div>
+        <button class="nav-btn active" onclick="show('profile', this)">Профиль</button>
+        <button class="nav-btn" onclick="show('news', this)">Новости</button>
+        <button id="abtn" class="nav-btn hidden" onclick="show('admin', this)">Админ</button>
     </div>
 
     <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-        const urlParams = new URLSearchParams(window.location.search);
-        
-        const name = urlParams.get('name');
-        const code = urlParams.get('code');
-        const role = urlParams.get('role');
+        const tg = window.Telegram.WebApp; tg.expand();
+        const params = new URLSearchParams(window.location.search);
+        const name = params.get('name');
 
-        if (!name || name === "None" || name === "") {
-            document.getElementById('auth-screen').classList.remove('hidden');
-            document.getElementById('main-content').classList.add('hidden');
+        if (!name || name === "None") {
+            document.getElementById('auth').classList.remove('hidden');
+            document.getElementById('main').classList.add('hidden');
         } else {
-            document.getElementById('u-name').innerText = name;
-            document.getElementById('u-code').innerText = "ID: " + code;
-            document.getElementById('inf-adr').innerText = urlParams.get('adr') || "Не указан";
-            document.getElementById('inf-rek').innerText = urlParams.get('rek') || "Не указаны";
-            if (role === 'Admin') document.getElementById('adm-btn').classList.remove('hidden');
+            document.getElementById('un').innerText = name;
+            document.getElementById('uc').innerText = "ID: " + params.get('code');
+            if (params.get('role') === 'Admin') document.getElementById('abtn').classList.remove('hidden');
             
-            // Посылки
-            const pData = urlParams.get('p');
-            const pList = document.getElementById('parcel-list');
-            let total = 0, count = 0;
-            if(pData && pData !== "") {
-                pData.split(';').forEach(item => {
-                    const [w, s] = item.split('|');
-                    if(w && s) {
-                        count++;
-                        let price = (s.includes("ЯКУТСК") || s.includes("ГОТОВ")) ? Math.round(parseFloat(w) * 570) : 0;
-                        total += price;
-                        pList.innerHTML += `<div class="parcel"><b>${s}</b><br>Вес: ${w} кг | Сумма: ${price}₽</div>`;
-                    }
+            // Рендер посылок
+            const p = params.get('p');
+            if(p) {
+                let t=0, c=0;
+                p.split(';').forEach(i => {
+                    const [w, s] = i.split('|'); c++;
+                    let pr = s.includes("ГОТОВ") ? Math.round(w*570) : 0; t+=pr;
+                    document.getElementById('plist').innerHTML += `<div style="padding:10px; background:#111; border-radius:10px; margin-top:10px; border-left:4px solid #333"><b>${s}</b><br>Вес: ${w} кг</div>`;
                 });
-            }
-            document.getElementById('c-all').innerText = count;
-            document.getElementById('c-sum').innerText = total + "₽";
-
-            // Новости
-            const nData = urlParams.get('news');
-            const nList = document.getElementById('news-list');
-            if(nData && nData !== "") {
-                nData.split(';').forEach(n => {
-                    const [t, p] = n.split('|');
-                    if(t) nList.innerHTML += `<div class="card">${p ? `<img src="${p}">` : ""}<p>${t}</p></div>`;
-                });
+                document.getElementById('ca').innerText = c; document.getElementById('cs').innerText = t+'₽';
             }
         }
 
-        function showP(id, el) {
+        function show(id, el) {
             document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('p-' + id).classList.remove('hidden');
-            el.classList.add('active');
+            document.getElementById('p-' + id).classList.remove('hidden'); el.classList.add('active');
         }
 
-        function sendToBot(action) {
-            let data = {action: action};
-            if(action === 'register') {
-                data.n = document.getElementById('reg_n').value;
-                data.c = document.getElementById('reg_c').value;
-                if(!data.n || !data.c) return alert("Заполни поля!");
-            } else if(action === 'update_parcel') {
-                data.c = document.getElementById('adm_c').value;
-                data.w = document.getElementById('adm_w').value;
-                data.s = document.getElementById('adm_s').value;
-            } else if(action === 'broadcast') {
-                data.t = document.getElementById('msg_t').value;
-            }
-            tg.sendData(JSON.stringify(data));
+        function send(action) {
+            let d = {action: action};
+            if(action === 'register') { d.n = document.getElementById('rn').value; d.c = document.getElementById('rc').value; }
+            if(action === 'update_parcel') { d.c = document.getElementById('ac').value; d.w = document.getElementById('aw').value; d.s = document.getElementById('as').value; }
+            tg.sendData(JSON.stringify(d));
         }
     </script>
 </body>
