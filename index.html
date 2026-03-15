@@ -3,106 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nataobao Control</title>
+    <title>Nataobao Pro</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --primary: #ff4d4d; --secondary: #28a745; --bg: #f4f4f9; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 15px; color: #1a1a1a; }
-        .card { background: white; border-radius: 15px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 15px; }
-        h1 { color: var(--primary); text-align: center; margin: 10px 0; }
-        h3 { margin-top: 0; font-size: 16px; border-bottom: 1px solid #eee; padding-bottom: 8px; }
-        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 14px; }
-        .btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.2s; }
-        .btn-reg { background: var(--primary); color: white; }
-        .btn-save { background: var(--secondary); color: white; }
+        :root { --primary: #ff4d4d; --accent: #007bff; --bg: #0f0f12; --card: #1c1c21; --text: #ffffff; --gray: #a1a1aa; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; }
+        h1 { text-align: center; color: var(--primary); font-size: 24px; margin: 10px 0; }
+        .card { background: var(--card); border-radius: 18px; padding: 18px; margin-bottom: 15px; border: 1px solid #2d2d35; }
+        .section-title { font-size: 14px; color: var(--gray); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; display: block; }
+        
+        input, select { width: 100%; background: #26262e; border: 1px solid #3f3f46; color: white; padding: 12px; border-radius: 10px; margin-bottom: 12px; box-sizing: border-box; font-size: 15px; }
+        input:focus { border-color: var(--primary); outline: none; }
+        
+        .btn { width: 100%; padding: 15px; border: none; border-radius: 12px; font-weight: bold; font-size: 15px; cursor: pointer; transition: 0.2s; margin-bottom: 10px; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-secondary { background: #3f3f46; color: white; }
+        .btn-save { background: #28a745; color: white; }
+
+        .parcel-item { background: #26262e; padding: 12px; border-radius: 10px; margin-bottom: 8px; border-left: 4px solid var(--primary); }
         .hidden { display: none; }
-        .status-tag { display: block; text-align: center; font-size: 11px; font-weight: bold; color: #999; text-transform: uppercase; margin-bottom: 10px; }
+        .role-badge { background: #2d2d35; color: var(--primary); padding: 4px 10px; border-radius: 8px; font-size: 11px; float: right; }
     </style>
 </head>
 <body>
+    <span id="role-text" class="role-badge">Client</span>
     <h1>Nataobao</h1>
-    <div id="role-badge" class="status-tag">Загрузка...</div>
 
     <div id="reg-section" class="card hidden">
-        <h3>👤 Регистрация клиента</h3>
-        <input type="text" id="reg_name" placeholder="Имя Фамилия">
-        <input type="text" id="reg_code" placeholder="Ваш код (напр. A777)">
-        <button class="btn btn-reg" onclick="registerUser()">Зарегистрироваться</button>
+        <span class="section-title">Авторизация</span>
+        <input type="text" id="reg_name" placeholder="Имя">
+        <input type="text" id="reg_code" placeholder="Код (например A101)">
+        <button class="btn btn-primary" onclick="sendData('register')">Создать профиль</button>
     </div>
 
     <div id="client-section" class="card hidden">
-        <h3>📦 Мои заказы</h3>
-        <p id="client-welcome" style="font-weight: bold; color: var(--primary);"></p>
-        <div id="parcel-list">У вас пока нет активных посылок.</div>
+        <span class="section-title">Мои посылки</span>
+        <div id="parcel-container">
+            <div class="parcel-item">Обновление данных...</div>
+        </div>
     </div>
 
-    <div id="worker-section" class="card hidden">
-        <h3 id="worker-title">🛠 Управление складом</h3>
-        <label>Код клиента:</label>
-        <input type="text" id="p_code" placeholder="A101">
-        <label>Вес (кг):</label>
-        <input type="number" id="p_weight" step="0.01" placeholder="0.00">
-        <label>Статус:</label>
-        <select id="p_status">
-            <option value="В пути в Якутск">🚚 В пути в Якутск</option>
-            <option value="На сортировке">📦 На сортировке</option>
-            <option value="Прибыл на склад">🏠 Прибыл на склад</option>
+    <div id="admin-section" class="card hidden">
+        <span class="section-title">Управление складом</span>
+        <input type="text" id="adm_code" placeholder="Код клиента">
+        <input type="number" id="adm_weight" step="0.01" placeholder="Вес (кг)">
+        <select id="adm_status">
+            <option value="В пути">🚚 В пути</option>
+            <option value="На складе">📦 На складе</option>
             <option value="Готов к выдаче">✅ Готов к выдаче</option>
-            <option value="Выдан">🏁 Выдан</option>
         </select>
-        <button class="btn btn-save" onclick="updateParcel()">Обновить статус</button>
-        <p id="notify-msg" style="font-size: 12px; text-align: center; color: var(--secondary); margin-top: 10px;"></p>
+        <button class="btn btn-save" onclick="sendData('update_parcel')">Обновить посылку</button>
+
+        <span class="section-title" style="margin-top:20px">Настройки сервиса</span>
+        <input type="number" id="set_price" placeholder="Цена за кг (570)">
+        <input type="text" id="set_addr" placeholder="Адрес выдачи">
+        <button class="btn btn-secondary" onclick="sendData('update_settings')">Сохранить конфиг</button>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
+        tg.ready();
 
         const params = new URLSearchParams(window.location.search);
         const role = params.get('role') || 'Client';
         const name = params.get('name');
         const code = params.get('code');
 
-        document.getElementById('role-badge').innerText = "Ваш статус: " + role;
+        document.getElementById('role-text').innerText = role;
 
         // ЛОГИКА ОТОБРАЖЕНИЯ
         if (!name || !code) {
             document.getElementById('reg-section').classList.remove('hidden');
         } else {
             document.getElementById('client-section').classList.remove('hidden');
-            document.getElementById('client-welcome').innerText = `${name} (${code})`;
+            // Здесь должна быть логика отрисовки списка посылок из БД через бота
         }
 
         if (role === 'Admin' || role === 'Operator') {
-            document.getElementById('worker-section').classList.remove('hidden');
-            document.getElementById('worker-title').innerText = role === 'Admin' ? "🛠 Админ-панель" : "👷 Панель оператора";
+            document.getElementById('admin-section').classList.remove('hidden');
         }
 
-        // РЕГИСТРАЦИЯ (Закрывает приложение)
-        function registerUser() {
-            const n = document.getElementById('reg_name').value.trim();
-            const c = document.getElementById('reg_code').value.trim();
-            if (!n || !c) return alert("Заполните имя и код!");
+        function sendData(action) {
+            let data = { action: action };
             
-            tg.sendData(JSON.stringify({action: 'register', n: n, c: c}));
-        }
+            if (action === 'register') {
+                data.n = document.getElementById('reg_name').value;
+                data.c = document.getElementById('reg_code').value;
+                if (!data.n || !data.c) return alert("Заполни поля!");
+            } 
+            else if (action === 'update_parcel') {
+                data.c = document.getElementById('adm_code').value;
+                data.w = document.getElementById('adm_weight').value;
+                data.s = document.getElementById('adm_status').value;
+                if (!data.c || !data.w) return alert("Введите код и вес!");
+                alert("Данные отправлены боту!");
+            }
+            else if (action === 'update_settings') {
+                data.p = document.getElementById('set_price').value;
+                data.a = document.getElementById('set_addr').value;
+            }
 
-        // ОБНОВЛЕНИЕ ПОСЫЛКИ (НЕ закрывает приложение)
-        function updateParcel() {
-            const pCode = document.getElementById('p_code').value.trim();
-            const pWeight = document.getElementById('p_weight').value;
-            const pStatus = document.getElementById('p_status').value;
-
-            if (!pCode || !pWeight) return alert("Введите код и вес!");
-
-            // Чтобы приложение не закрывалось, мы НЕ используем sendData.
-            // Вместо этого мы можем отправить данные через fetch на твой сервер (если есть API)
-            // Но пока просто выведем сообщение, что данные "ушли"
-            document.getElementById('notify-msg').innerText = `✅ Данные для ${pCode} успешно отправлены!`;
-            
-            // Если ты хочешь, чтобы бот всё равно получал уведомление, 
-            // придется использовать API бота через fetch, а не sendData.
-            console.log("Update sent for:", pCode);
+            // Отправляем данные боту (приложение закроется)
+            tg.sendData(JSON.stringify(data));
         }
     </script>
 </body>
