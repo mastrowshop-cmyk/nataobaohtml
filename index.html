@@ -6,131 +6,84 @@
     <title>Nataobao Logistics</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --primary: #ff4d4d; --bg: #f4f4f9; --card: #ffffff; --text: #1a1a1a; --gray: #8e8e93; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); margin: 0; padding: 0; color: var(--text); }
-        
-        /* Лоадер */
+        :root { --primary: #ff4d4d; --bg: #f4f4f9; --card: #ffffff; --text: #1a1a1a; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 0; }
         .loader { position: fixed; inset: 0; background: white; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
         .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
         .container { padding: 20px; display: none; max-width: 500px; margin: 0 auto; }
-        .header { text-align: center; margin-bottom: 25px; }
-        .header h1 { margin: 10px 0 5px; color: var(--primary); font-size: 28px; }
-        
-        .card { background: var(--card); border-radius: 20px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid #eee; }
-        h3 { margin-top: 0; font-size: 18px; display: flex; align-items: center; gap: 8px; }
-        
-        label { display: block; font-size: 13px; color: var(--gray); margin-bottom: 5px; margin-left: 5px; }
-        input, select { width: 100%; border: 1.5px solid #eee; background: #fff; padding: 14px; border-radius: 12px; margin-bottom: 15px; box-sizing: border-box; font-size: 16px; transition: 0.3s; }
-        input:focus { border-color: var(--primary); outline: none; }
-        
-        .btn { width: 100%; background: var(--primary); color: white; border: none; padding: 16px; border-radius: 14px; font-weight: 700; font-size: 16px; cursor: pointer; transition: 0.2s; }
-        .btn:active { transform: scale(0.98); opacity: 0.9; }
-        
-        .role-badge { display: inline-block; padding: 5px 12px; border-radius: 10px; font-size: 12px; font-weight: 800; background: #eee; margin-bottom: 15px; text-transform: uppercase; }
+        .card { background: var(--card); border-radius: 20px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        input, select { width: 100%; border: 1.5px solid #eee; padding: 14px; border-radius: 12px; margin-bottom: 15px; box-sizing: border-box; font-size: 16px; }
+        .btn { width: 100%; background: var(--primary); color: white; border: none; padding: 16px; border-radius: 14px; font-weight: 700; font-size: 16px; }
         .hidden { display: none; }
+        .role-badge { display: inline-block; padding: 5px 12px; border-radius: 10px; font-size: 12px; background: #eee; margin-bottom: 15px; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div id="loader" class="loader">
-        <div class="spinner"></div>
-        <p style="margin-top: 15px; font-weight: 500;">Nataobao загружается...</p>
-    </div>
+    <div id="loader" class="loader"><div class="spinner"></div><p>Загрузка Nataobao...</p></div>
 
     <div id="main" class="container">
-        <div class="header">
+        <div style="text-align: center;">
             <div id="user-role" class="role-badge">Клиент</div>
-            <h1>Nataobao</h1>
-            <p style="color: var(--gray); font-size: 14px;">Система управления складом</p>
+            <h1 style="color: var(--primary); margin: 0;">Nataobao</h1>
         </div>
 
         <div class="card" id="reg-section">
             <h3>🔑 Регистрация</h3>
-            <label>Ваш личный код</label>
-            <input type="text" id="reg_code" placeholder="Напр: A100">
-            <label>Ваше имя</label>
-            <input type="text" id="reg_name" placeholder="Введите имя">
+            <input type="text" id="reg_code" placeholder="Ваш код (напр. A105)">
+            <input type="text" id="reg_name" placeholder="Ваше имя">
             <button class="btn" onclick="sendData('register')">Зарегистрироваться</button>
         </div>
 
         <div class="card hidden" id="operator-section">
-            <h3>📦 Обработка посылки</h3>
-            <label>Код клиента</label>
-            <input type="text" id="p_code" placeholder="Код (напр: A100)">
-            <label>Вес (кг)</label>
-            <input type="number" id="p_weight" step="0.01" placeholder="0.00">
-            <label>Статус</label>
+            <h3>📦 Панель оператора</h3>
+            <input type="text" id="p_code" placeholder="Код клиента">
+            <input type="number" id="p_weight" step="0.01" placeholder="Вес (кг)">
             <select id="p_status">
-                <option value="В пути в Якутск">🚚 В пути в Якутск</option>
-                <option value="На сортировке">📦 На сортировке</option>
-                <option value="Прибыл в Якутск">🏠 Прибыл в Якутск</option>
-                <option value="Взвешен и готов">✅ Взвешен и готов</option>
+                <option value="В пути в Якутск">🚚 В пути</option>
+                <option value="На сортировке">📦 Сортировка</option>
+                <option value="Прибыл в Якутск">🏠 Прибыл</option>
+                <option value="Взвешен и готов">✅ Готов к выдаче</option>
             </select>
             <button class="btn" style="background: #28a745;" onclick="sendData('update_parcel')">Обновить посылку</button>
-        </div>
-
-        <div class="card hidden" id="admin-section">
-            <h3>⚙️ Глобальные настройки</h3>
-            <label>Цена за 1 кг (₽)</label>
-            <input type="number" id="set_price" placeholder="570">
-            <label>Адрес выдачи</label>
-            <input type="text" id="set_addr" placeholder="Адрес склада">
-            <button class="btn" style="background: #333;" onclick="sendData('settings')">Сохранить для всех</button>
         </div>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
-        tg.expand();
         tg.ready();
+        tg.expand();
 
-        // Твой ID
         const OWNER_ID = 8060718452;
 
         setTimeout(() => {
             document.getElementById('loader').style.display = 'none';
             document.getElementById('main').style.display = 'block';
 
-            const user = tg.initDataUnsafe.user;
-            const userId = user ? user.id : 0;
+            const userId = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : 0;
             const urlParams = new URLSearchParams(window.location.search);
             const role = urlParams.get('role');
 
-            // Проверка прав
-            if (userId === OWNER_ID || role === 'Admin') {
+            if (userId === OWNER_ID || role === 'Admin' || role === 'Operator') {
                 document.getElementById('operator-section').classList.remove('hidden');
-                document.getElementById('admin-section').classList.remove('hidden');
-                document.getElementById('user-role').innerText = "Администратор";
-            } else if (role === 'Operator') {
-                document.getElementById('operator-section').classList.remove('hidden');
-                document.getElementById('user-role').innerText = "Оператор";
+                document.getElementById('user-role').innerText = role || "Админ";
             }
-        }, 2000);
+        }, 1500);
 
         function sendData(action) {
             let data = { action: action };
-            
             if (action === 'register') {
-                const n = document.getElementById('reg_name').value.trim();
-                const c = document.getElementById('reg_code').value.trim();
-                if (!n || !c) return alert("Заполните поля!");
-                data.n = n; data.c = c;
+                data.c = document.getElementById('reg_code').value.trim();
+                data.n = document.getElementById('reg_name').value.trim();
+                if (!data.c || !data.n) return alert("Заполни поля!");
             } else if (action === 'update_parcel') {
                 data.c = document.getElementById('p_code').value.trim();
                 data.w = document.getElementById('p_weight').value;
                 data.s = document.getElementById('p_status').value;
-                if (!data.c || !data.w) return alert("Введите код и вес!");
-            } else if (action === 'settings') {
-                data.pr = document.getElementById('set_price').value;
-                data.ad = document.getElementById('set_addr').value;
             }
 
-            try {
-                tg.sendData(JSON.stringify(data));
-            } catch (e) {
-                alert("Ошибка Telegram: " + e.message);
-            }
+            // Прямая отправка
+            tg.sendData(JSON.stringify(data));
         }
     </script>
 </body>
