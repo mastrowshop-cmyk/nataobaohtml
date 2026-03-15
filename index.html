@@ -5,125 +5,119 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --red: #ff3e3e; --bg: #000; --card: #111; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); color: #fff; margin: 0; padding: 15px; }
+        :root { --main: #ff3e3e; --bg: #0d1117; --card: #161b22; --text: #c9d1d9; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; padding-bottom: 80px; }
         .hidden { display: none !important; }
-        .card { background: var(--card); border-radius: 12px; padding: 15px; margin-bottom: 10px; border: 1px solid #222; }
-        input, select { width: 100%; background: #222; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 8px; margin-bottom: 10px; box-sizing: border-box; }
-        .btn { width: 100%; padding: 14px; background: var(--red); border: none; color: #fff; font-weight: bold; border-radius: 8px; cursor: pointer; }
-        .nav { position: fixed; bottom: 0; left: 0; width: 100%; display: flex; background: #0a0a0a; padding: 10px 0; border-top: 1px solid #222; }
-        .nav-btn { flex: 1; text-align: center; font-size: 10px; color: #666; background: none; border: none; text-transform: uppercase; }
-        .nav-btn.active { color: var(--red); font-weight: bold; }
-        .status-badge { display: inline-block; padding: 4px 8px; border-radius: 5px; font-size: 10px; background: #333; }
+        .card { background: var(--card); border-radius: 12px; padding: 15px; margin-bottom: 12px; border: 1px solid #30363d; }
+        .btn { width: 100%; padding: 15px; background: var(--main); border: none; color: #fff; font-weight: bold; border-radius: 10px; cursor: pointer; }
+        input, select { width: 100%; background: #0d1117; border: 1px solid #30363d; color: #fff; padding: 12px; border-radius: 10px; margin-bottom: 10px; box-sizing: border-box; }
+        .nav { position: fixed; bottom: 0; left: 0; width: 100%; display: flex; background: #161b22; padding: 15px 0; border-top: 1px solid #30363d; z-index: 100; }
+        .nav-item { flex: 1; text-align: center; font-size: 11px; color: #8b949e; }
+        .nav-item.active { color: var(--main); font-weight: bold; }
+        .label { font-size: 10px; color: #8b949e; text-transform: uppercase; margin-bottom: 5px; display: block; }
     </style>
 </head>
 <body>
 
-    <div id="reg-screen" class="hidden">
-        <h2 style="text-align:center">РЕГИСТРАЦИЯ</h2>
+    <div id="scr-auth" class="hidden">
+        <h2 style="text-align:center">CARGO HUB</h2>
         <div class="card">
-            <input type="text" id="reg-name" placeholder="Ваше Имя">
-            <input type="text" id="reg-code" placeholder="Код (например A105)">
-            <button class="btn" onclick="saveReg()">СОЗДАТЬ АККАУНТ</button>
+            <input type="text" id="r-n" placeholder="Ваше Имя">
+            <input type="text" id="r-c" placeholder="Ваш Код (A105)">
+            <button class="btn" onclick="send({a:'reg', n:v('r-n'), c:v('r-c')})">СОЗДАТЬ ПРОФИЛЬ</button>
         </div>
     </div>
 
-    <div id="main-screen" class="hidden">
-        <div style="display:flex; justify-content:space-between; align-items:center">
-            <h2 id="view-name">...</h2>
-            <span id="view-role" class="status-badge">Клиент</span>
-        </div>
-        <p id="view-code" style="color:var(--red); font-weight:bold; margin-top:-10px;"></p>
-
-        <div id="page-profile" class="page">
-            <div class="card" style="text-align:center; display:flex; gap:10px;">
-                <div style="flex:1; background:#000; padding:10px; border-radius:10px;"><small>ПОСЫЛКИ</small><br><b id="count-p">0</b></div>
-                <div style="flex:1; background:#000; padding:10px; border-radius:10px;"><small>К ОПЛАТЕ</small><br><b id="total-s" style="color:#2ecc71">0₽</b></div>
+    <div id="scr-main" class="hidden">
+        
+        <div id="pg-profile" class="page">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
+                <div><small id="u-role" class="label">CLIENT</small><h2 id="u-name" style="margin:0">...</h2></div>
+                <div id="u-code" style="color:var(--main); font-weight:bold; font-size:1.2em">...</div>
             </div>
-            <div id="parcel-list"></div>
+            <div id="p-list"></div>
         </div>
 
-        <div id="page-admin" class="page hidden">
-            <h3 style="color:var(--red)">ДОБАВИТЬ ПОСЫЛКУ</h3>
+        <div id="pg-info" class="page hidden">
+            <span class="label">📍 Адрес для получения товара</span>
+            <div class="card" id="view-adr" style="color:white; font-weight:bold">...</div>
+            <span class="label">💳 Реквизиты для оплаты</span>
+            <div class="card" id="view-rek" style="color:#00f260">...</div>
+        </div>
+
+        <div id="pg-admin" class="page hidden">
+            <h3 style="color:var(--main)">🛠 ПАНЕЛЬ УПРАВЛЕНИЯ</h3>
             <div class="card">
-                <input type="text" id="adm-code" placeholder="Код клиента">
-                <input type="number" id="adm-weight" placeholder="Вес (кг)">
-                <select id="adm-status">
-                    <option value="🚚 В ПУТИ">🚚 В ПУТИ</option>
-                    <option value="🏁 ГОТОВ К ВЫДАЧЕ">🏁 ГОТОВ</option>
-                </select>
-                <button class="btn" onclick="addParcel()">ДОБАВИТЬ В БАЗУ</button>
+                <span class="label">Добавить посылку</span>
+                <input type="text" id="a-c" placeholder="Код клиента">
+                <input type="number" id="a-w" placeholder="Вес кг">
+                <select id="a-s"><option>🚚 В ПУТИ</option><option>🏁 ГОТОВ</option></select>
+                <button class="btn" onclick="addP()">ДОБАВИТЬ И ОПОВЕСТИТЬ</button>
+            </div>
+            <div class="card">
+                <span class="label">Изменить данные склада</span>
+                <input type="text" id="ed-adr" placeholder="Новый адрес">
+                <button class="btn" style="background:#333; margin-bottom:10px" onclick="setS('adr', v('ed-adr'))">ОБНОВИТЬ АДРЕС</button>
+                <input type="text" id="ed-rek" placeholder="Новые реквизиты">
+                <button class="btn" style="background:#333" onclick="setS('rek', v('ed-rek'))">ОБНОВИТЬ ОПЛАТУ</button>
             </div>
         </div>
     </div>
 
     <div id="navbar" class="nav hidden">
-        <button class="nav-btn active" onclick="showPage('profile', this)">Профиль</button>
-        <button id="nav-admin-btn" class="nav-btn hidden" onclick="showPage('admin', this)">АДМИН-ПАНЕЛЬ</button>
+        <div class="nav-item active" onclick="show('profile', this)">Грузы</div>
+        <div class="nav-item" onclick="show('info', this)">Инфо</div>
+        <div id="nav-adm" class="nav-item hidden" onclick="show('admin', this)">АДМИН</div>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
-        const urlParams = new URLSearchParams(window.location.search);
-        
-        const name = urlParams.get('name');
-        const role = urlParams.get('role');
-        const code = urlParams.get('code');
+        // Включаем Pull-to-Refresh для автообновления
+        tg.enableClosingConfirmation();
 
-        if (!name || name === 'None') {
-            document.getElementById('reg-screen').classList.remove('hidden');
+        const url = new URLSearchParams(window.location.search);
+        const v = (id) => document.getElementById(id).value;
+        const n = url.get('n'), r = url.get('r'), c = url.get('c');
+
+        if (!n || n === 'None') {
+            document.getElementById('scr-auth').classList.remove('hidden');
         } else {
-            document.getElementById('main-screen').classList.remove('hidden');
+            document.getElementById('scr-main').classList.remove('hidden');
             document.getElementById('navbar').classList.remove('hidden');
-            document.getElementById('view-name').innerText = name;
-            document.getElementById('view-code').innerText = "ЛИЧНЫЙ КОД: " + code;
+            document.getElementById('u-name').innerText = n;
+            document.getElementById('u-code').innerText = c;
+            document.getElementById('view-adr').innerText = url.get('adr');
+            document.getElementById('view-rek').innerText = url.get('rek');
 
-            if (role === 'Admin') {
-                document.getElementById('view-role').innerText = "АДМИНИСТРАТОР";
-                document.getElementById('view-role').style.color = "yellow";
-                document.getElementById('nav-admin-btn').classList.remove('hidden');
+            if (r === 'Admin') {
+                document.getElementById('u-role').innerText = "MANAGER";
+                document.getElementById('nav-adm').classList.remove('hidden');
             }
 
-            // Рендер посылок
-            const pData = urlParams.get('p');
-            if(pData) {
-                let count = 0, sum = 0;
-                pData.split(';').forEach(item => {
-                    const [w, s] = item.split('|');
-                    count++;
-                    if(s.includes("ГОТОВ")) sum += Math.round(w * 570);
-                    document.getElementById('parcel-list').innerHTML += `
-                        <div class="card" style="border-left: 4px solid var(--red)">
-                            <b>${s}</b><br><small>Вес: ${w} кг</small>
+            const parcels = url.get('p');
+            if(parcels) {
+                parcels.split(';').forEach(p => {
+                    const [w, s, d, code, id] = p.split('|');
+                    document.getElementById('p-list').innerHTML += `
+                        <div class="card" style="border-left: 4px solid ${s.includes('ГОТОВ') ? '#00f260' : '#3498db'}">
+                            <b>${s}</b> <small style="float:right">${d}</small><br>
+                            <small>Вес: ${w} кг | Клиент: ${code}</small>
                         </div>`;
                 });
-                document.getElementById('count-p').innerText = count;
-                document.getElementById('total-s').innerText = sum + "₽";
             }
         }
 
-        function showPage(page, btn) {
-            document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('page-' + page).classList.remove('hidden');
-            btn.classList.add('active');
+        function show(p, el) {
+            document.querySelectorAll('.page').forEach(x => x.classList.add('hidden'));
+            document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
+            document.getElementById('pg-' + p).classList.remove('hidden');
+            el.classList.add('active');
         }
 
-        function saveReg() {
-            const n = document.getElementById('reg-name').value;
-            const c = document.getElementById('reg-code').value;
-            if(!n || !c) return alert("Заполни все поля!");
-            tg.sendData(JSON.stringify({action: 'register', n: n, c: c}));
-        }
-
-        function addParcel() {
-            const c = document.getElementById('adm-code').value;
-            const w = document.getElementById('adm-weight').value;
-            const s = document.getElementById('adm-status').value;
-            if(!c || !w) return alert("Введите данные!");
-            tg.sendData(JSON.stringify({action: 'add_parcel', c: c, w: w, s: s}));
-        }
+        function send(data) { tg.sendData(JSON.stringify(data)); }
+        function addP() { send({a:'add', c:v('a-c'), w:v('a-w'), s:v('a-s')}); }
+        function setS(key, val) { if(val) send({a:'set', k:key, v:val}); }
     </script>
 </body>
 </html>
