@@ -27,14 +27,16 @@
 <body>
 
     <script>
+        // Вспомогательная функция определена первой
         function v(id) { return document.getElementById(id).value; }
+        function send(data) { window.Telegram.WebApp.sendData(JSON.stringify(data)); window.Telegram.WebApp.close(); }
     </script>
 
     <div id="scr-auth" class="hidden">
         <div style="text-align:center; margin: 60px 0 30px;"><h2>NATAOBAO</h2></div>
         <div class="card">
-            <input type="text" id="r-n" placeholder="Ваше Имя">
-            <input type="text" id="r-c" placeholder="Код (например A105)">
+            <input type="text" id="r-n" placeholder="Имя">
+            <input type="text" id="r-c" placeholder="Код (A105)">
             <button class="btn" onclick="send({a:'reg', n:v('r-n'), c:v('r-c')})">ЗАРЕГИСТРИРОВАТЬСЯ</button>
         </div>
     </div>
@@ -55,22 +57,25 @@
 
         <div id="pg-info" class="page hidden">
             <h3>📢 НОВОСТИ</h3><div class="card" id="view-notif" style="color:var(--accent); font-weight:700"></div>
-            <h3>📍 СКЛАД</h3><div class="card" id="view-adr"></div>
-            <h3>💳 ОПЛАТА</h3><div class="card" id="view-rek"></div>
+            <h3>📍 СКЛАД КИТАЙ</h3><div class="card" id="view-adr"></div>
+            <h3>💳 РЕКВИЗИТЫ</h3><div class="card" id="view-rek"></div>
         </div>
 
         <div id="pg-admin" class="page hidden">
             <div class="card" style="background: var(--accent); color: white; border:none;">
-                <div style="font-size: 10px; opacity: 0.7;">ВСЕГО ПОСЫЛОК</div>
+                <div style="font-size: 10px; opacity: 0.7;">ВСЕГО ПОСЫЛОК В БАЗЕ</div>
                 <div style="font-size: 38px; font-weight: 900;" id="total-count">0</div>
             </div>
-            <h3>📦 ПРИЕМКА</h3>
+            <h3>📦 ПРИЕМКА / ВЕС</h3>
             <div class="card">
-                <div style="display:flex; gap:8px; margin-bottom:10px"><input type="text" id="a-t" placeholder="Трек"><button class="btn" style="width:60px; background:var(--border); color:white" onclick="scan('a-t')">📷</button></div>
-                <input type="text" id="a-c" placeholder="Код клиента">
-                <button class="btn btn-adm" onclick="send({a:'add_cargo', t:v('a-t'), c:v('a-c')})">ДОБАВИТЬ</button>
+                <div style="display:flex; gap:8px; margin-bottom:10px">
+                    <input type="text" id="a-t" placeholder="Трек или Код">
+                    <button class="btn" style="width:60px; background:var(--border); color:white" onclick="scan('a-t')">📷</button>
+                </div>
+                <input type="number" id="a-w" placeholder="Вес (если 0 - будет В ПУТИ)">
+                <button class="btn btn-adm" onclick="send({a:'add_cargo', t:v('a-t'), w:v('a-w')})">СОХРАНИТЬ</button>
             </div>
-            <h3>👥 ОДОБРЕНИЕ</h3>
+            <h3>👥 ОДОБРЕНИЕ КЛИЕНТОВ</h3>
             <div class="card" id="all-users-list"></div>
         </div>
     </div>
@@ -84,8 +89,7 @@
     <script>
         const tg = window.Telegram.WebApp;
         const url = new URLSearchParams(location.search);
-        const n = url.get('n'), r = url.get('r'), code = url.get('c'), app = url.get('app'), price = url.get('pr') || 570;
-
+        
         tg.expand();
         tg.setHeaderColor('#010101');
 
@@ -104,10 +108,9 @@
             if(el) el.classList.add('active');
         }
 
-        function send(data) { tg.sendData(JSON.stringify(data)); tg.close(); }
-
-        // Рендер логика
         try {
+            const n = url.get('n'), r = url.get('r'), code = url.get('c'), app = url.get('app'), price = url.get('pr') || 570;
+
             if (!n || n === 'None') {
                 document.getElementById('scr-auth').classList.remove('hidden');
             } else if (app === '0' && r !== 'Admin') {
@@ -130,7 +133,7 @@
                         uData.split(';').forEach(u => {
                             if(!u) return;
                             const [un, uc, ua, ut] = u.split('|');
-                            uH += `<div class="user-row"><span>${ua==='1'?'✅':'⏳'} ${un}</span>${ua==='0'?`<button onclick="send({a:'app_user',tid:${ut}})" style="background:var(--accent); color:white; border:none; padding:5px 10px; border-radius:8px">ОДОБРИТЬ</button>`:''}</div>`;
+                            uH += `<div class="user-row"><span>${ua==='1'?'✅':'⏳'} <b>${un}</b></span>${ua==='0'?`<button onclick="send({a:'app_user',tid:${ut}})" style="background:var(--accent); color:white; border:none; padding:5px 10px; border-radius:8px; font-size:10px">ОДОБРИТЬ</button>`:''}</div>`;
                         });
                         document.getElementById('all-users-list').innerHTML = uH || "Клиентов нет";
                     }
@@ -142,17 +145,13 @@
                     parcels.split(';').forEach(p => {
                         if(!p) return;
                         const [w, s, d, cc, id, tr] = p.split('|');
-                        if(r === 'Admin' || cc === code) {
-                            const ready = s.includes('ГОТОВ');
-                            pH += `<div class="card"><div style="display:flex; justify-content:space-between; margin-bottom:10px"><div class="status ${ready?'s-ready':'s-way'}">${s}</div><div style="opacity:0.3; font-size:10px">${cc}</div></div><div style="display:flex; justify-content:space-between; align-items:flex-end"><div><div style="font-size:24px; font-weight:900">${w} кг</div><div style="color:var(--green); font-weight:700">${Math.round(w*price)} ₽</div></div><div style="text-align:right; font-size:10px; opacity:0.4">${tr}<br>${d}<br>${r==='Admin'?`<span style="color:var(--red)" onclick="send({a:'del', id:${id}})">УДАЛИТЬ</span>`:''}</div></div></div>`;
-                        }
+                        const ready = s.includes('ГОТОВ');
+                        pH += `<div class="card"><div style="display:flex; justify-content:space-between; margin-bottom:10px"><div class="status ${ready?'s-ready':'s-way'}">${s}</div><div style="opacity:0.3; font-size:10px">${cc}</div></div><div style="display:flex; justify-content:space-between; align-items:flex-end"><div><div style="font-size:24px; font-weight:900">${w} кг</div><div style="color:var(--green); font-weight:700">${Math.round(w*price)} ₽</div></div><div style="text-align:right; font-size:10px; opacity:0.4">${tr}<br>${d}<br>${r==='Admin'?`<span style="color:var(--red)" onclick="send({a:'del', id:${id}})">УДАЛИТЬ</span>`:''}</div></div></div>`;
                     });
-                    document.getElementById('p-list').innerHTML = pH || "<p style='text-align:center; opacity:0.4'>Посылок пока нет</p>";
+                    document.getElementById('p-list').innerHTML = pH;
                 }
             }
-        } catch(e) {
-            alert("Ошибка загрузки: " + e);
-        }
+        } catch(e) { console.error(e); }
     </script>
 </body>
 </html>
