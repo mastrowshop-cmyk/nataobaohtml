@@ -3,49 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nataobao Logistics</title>
+    <title>Nataobao</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --primary: #ff4d4d; --bg: #f4f4f9; --card: #ffffff; --text: #1a1a1a; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 0; }
+        :root { --primary: #ff4d4d; --bg: #f4f4f9; --card: #ffffff; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 0; color: #1a1a1a; }
         .loader { position: fixed; inset: 0; background: white; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
         .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .container { padding: 20px; display: none; max-width: 500px; margin: 0 auto; }
-        .card { background: var(--card); border-radius: 20px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        input, select { width: 100%; border: 1.5px solid #eee; padding: 14px; border-radius: 12px; margin-bottom: 15px; box-sizing: border-box; font-size: 16px; }
-        .btn { width: 100%; background: var(--primary); color: white; border: none; padding: 16px; border-radius: 14px; font-weight: 700; font-size: 16px; }
+        .card { background: var(--card); border-radius: 20px; padding: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        h1 { color: var(--primary); text-align: center; margin-bottom: 25px; }
+        input, select { width: 100%; border: 1.5px solid #eee; padding: 14px; border-radius: 12px; margin-bottom: 15px; box-sizing: border-box; font-size: 16px; outline: none; }
+        input:focus { border-color: var(--primary); }
+        .btn { width: 100%; background: var(--primary); color: white; border: none; padding: 16px; border-radius: 14px; font-weight: 700; font-size: 16px; transition: 0.2s; }
+        .btn:active { transform: scale(0.98); opacity: 0.8; }
         .hidden { display: none; }
-        .role-badge { display: inline-block; padding: 5px 12px; border-radius: 10px; font-size: 12px; background: #eee; margin-bottom: 15px; font-weight: bold; }
+        .role-badge { display: block; text-align: center; font-size: 12px; font-weight: bold; color: #888; margin-bottom: 10px; text-transform: uppercase; }
     </style>
 </head>
 <body>
     <div id="loader" class="loader"><div class="spinner"></div><p>Загрузка Nataobao...</p></div>
 
     <div id="main" class="container">
-        <div style="text-align: center;">
-            <div id="user-role" class="role-badge">Клиент</div>
-            <h1 style="color: var(--primary); margin: 0;">Nataobao</h1>
-        </div>
+        <h1>Nataobao</h1>
+        <div id="user-role" class="role-badge">Загрузка прав...</div>
 
         <div class="card" id="reg-section">
-            <h3>🔑 Регистрация</h3>
-            <input type="text" id="reg_code" placeholder="Ваш код (напр. A105)">
+            <h3 style="margin-top:0">👤 Регистрация</h3>
+            <input type="text" id="reg_code" placeholder="Ваш код (A101)">
             <input type="text" id="reg_name" placeholder="Ваше имя">
             <button class="btn" onclick="sendData('register')">Зарегистрироваться</button>
         </div>
 
         <div class="card hidden" id="operator-section">
-            <h3>📦 Панель оператора</h3>
+            <h3 style="margin-top:0">📦 Управление посылкой</h3>
             <input type="text" id="p_code" placeholder="Код клиента">
             <input type="number" id="p_weight" step="0.01" placeholder="Вес (кг)">
             <select id="p_status">
-                <option value="В пути в Якутск">🚚 В пути</option>
-                <option value="На сортировке">📦 Сортировка</option>
+                <option value="В пути">🚚 В пути</option>
                 <option value="Прибыл в Якутск">🏠 Прибыл</option>
-                <option value="Взвешен и готов">✅ Готов к выдаче</option>
+                <option value="Готов к выдаче">✅ Готов к выдаче</option>
             </select>
-            <button class="btn" style="background: #28a745;" onclick="sendData('update_parcel')">Обновить посылку</button>
+            <button class="btn" style="background:#28a745" onclick="sendData('update_parcel')">Обновить статус</button>
         </div>
     </div>
 
@@ -56,34 +56,43 @@
 
         const OWNER_ID = 8060718452;
 
+        // Показ контента
         setTimeout(() => {
             document.getElementById('loader').style.display = 'none';
             document.getElementById('main').style.display = 'block';
 
-            const userId = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : 0;
+            const user = tg.initDataUnsafe.user;
+            const userId = user ? user.id : 0;
             const urlParams = new URLSearchParams(window.location.search);
             const role = urlParams.get('role');
 
+            document.getElementById('user-role').innerText = role || "Клиент";
+
             if (userId === OWNER_ID || role === 'Admin' || role === 'Operator') {
                 document.getElementById('operator-section').classList.remove('hidden');
-                document.getElementById('user-role').innerText = role || "Админ";
             }
         }, 1500);
 
         function sendData(action) {
-            let data = { action: action };
+            let payload = { action: action };
+            
             if (action === 'register') {
-                data.c = document.getElementById('reg_code').value.trim();
-                data.n = document.getElementById('reg_name').value.trim();
-                if (!data.c || !data.n) return alert("Заполни поля!");
+                payload.c = document.getElementById('reg_code').value.trim();
+                payload.n = document.getElementById('reg_name').value.trim();
+                if (!payload.c || !payload.n) return alert("Заполни все поля!");
             } else if (action === 'update_parcel') {
-                data.c = document.getElementById('p_code').value.trim();
-                data.w = document.getElementById('p_weight').value;
-                data.s = document.getElementById('p_status').value;
+                payload.c = document.getElementById('p_code').value.trim();
+                payload.w = document.getElementById('p_weight').value;
+                payload.s = document.getElementById('p_status').value;
+                if (!payload.c || !payload.w) return alert("Введите код и вес!");
             }
 
-            // Прямая отправка
-            tg.sendData(JSON.stringify(data));
+            // Главная команда
+            try {
+                tg.sendData(JSON.stringify(payload));
+            } catch (e) {
+                alert("Ошибка Telegram: " + e.message);
+            }
         }
     </script>
 </body>
