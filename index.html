@@ -6,93 +6,93 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
-        :root { --red: #ff3b30; --bg: #0d0d0f; --card-base: rgba(30, 30, 35, 0.5); --border: rgba(255, 255, 255, 0.06); --text: #98989e; --white: #ffffff; --green: #30d158; --neon-blue: #007aff; --neon-purple: #af52de; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; padding-bottom: 120px; -webkit-font-smoothing: antialiased; position: relative; overflow-x: hidden; }
-        body::before { content: ''; position: fixed; width: 300px; height: 300px; background: var(--neon-blue); border-radius: 50%; filter: blur(80px); z-index: -1; opacity: 0.1; top: -50px; left: -50px; animation: fly 10s infinite alternate; }
-        @keyframes fly { 0% { transform: translate(0,0); } 100% { transform: translate(50px, 50px); } }
+        :root { --red: #ff3b30; --bg: #0d0d0f; --card: rgba(30, 30, 35, 0.6); --border: rgba(255, 255, 255, 0.08); --text: #98989e; --white: #ffffff; --green: #30d158; --blue: #007aff; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; padding-bottom: 100px; }
         .hidden { display: none !important; }
-        .card { background: var(--card-base); border: 1px solid var(--border); border-radius: 24px; padding: 20px; margin-bottom: 15px; backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); box-shadow: 0 8px 32px rgba(0,0,0,0.2); animation: fadeIn 0.4s ease; }
-        h2 { color: var(--white); font-weight: 800; font-size: 24px; letter-spacing: -0.5px; margin: 0; }
-        h3 { color: var(--white); font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; margin: 25px 0 10px 5px; opacity: 0.5; }
-        .btn { width: 100%; padding: 16px; background: var(--white); border: none; color: black; font-weight: 700; border-radius: 16px; cursor: pointer; font-size: 15px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn:active { transform: scale(0.96); }
-        .btn-admin { background: var(--red); color: white; }
-        .btn-outline { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--white); }
-        input { width: 100%; background: rgba(28,28,30,0.6); border: 1px solid var(--border); color: var(--white); padding: 16px; border-radius: 14px; margin-bottom: 10px; box-sizing: border-box; font-size: 16px; outline: none; }
-        .nav { position: fixed; bottom: 25px; left: 25px; right: 25px; height: 68px; background: rgba(28, 28, 30, 0.6); backdrop-filter: blur(25px); border: 1px solid var(--border); border-radius: 30px; display: flex; align-items: center; z-index: 1000; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 18px; margin-bottom: 15px; backdrop-filter: blur(10px); }
+        h2 { color: var(--white); font-weight: 800; margin: 0; }
+        h3 { color: var(--white); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin: 20px 0 10px 5px; opacity: 0.5; }
+        input { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border); color: var(--white); padding: 14px; border-radius: 12px; margin-bottom: 10px; box-sizing: border-box; outline: none; }
+        .btn { width: 100%; padding: 16px; background: var(--white); border: none; color: black; font-weight: 700; border-radius: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-adm { background: var(--red); color: white; }
+        .nav { position: fixed; bottom: 20px; left: 15px; right: 15px; height: 65px; background: rgba(25,25,27,0.9); border: 1px solid var(--border); border-radius: 25px; display: flex; align-items: center; backdrop-filter: blur(15px); }
         .nav-item { flex: 1; text-align: center; font-size: 10px; font-weight: 700; color: #5c5c61; text-transform: uppercase; }
         .nav-item.active { color: var(--white); }
-        .weight-view { font-size: 32px; font-weight: 800; color: var(--white); }
-        .status { font-size: 10px; font-weight: 800; padding: 5px 10px; border-radius: 8px; margin-bottom: 10px; display: inline-block; }
-        .status-ready { background: rgba(48, 209, 88, 0.15); color: var(--green); }
-        .status-way { background: rgba(0, 122, 255, 0.15); color: #007aff; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .status { font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 6px; display: inline-block; margin-bottom: 8px; }
+        .s-ready { background: rgba(48,209,88,0.1); color: var(--green); }
+        .s-way { background: rgba(0,122,255,0.1); color: var(--blue); }
     </style>
 </head>
 <body>
 
+    <script>
+        function v(id) { return document.getElementById(id).value; }
+        function send(data) { window.Telegram.WebApp.sendData(JSON.stringify(data)); window.Telegram.WebApp.close(); }
+        function scan(id) { 
+            window.Telegram.WebApp.showScanQrPopup({ text: "Сканируйте штрих-код товара" }, (t) => {
+                document.getElementById(id).value = t;
+                window.Telegram.WebApp.closeScanQrPopup();
+                return true;
+            });
+        }
+    </script>
+
     <div id="scr-auth" class="hidden">
-        <div style="text-align: center; margin: 80px 0 40px;">
-            <h1 style="color: var(--white); font-size: 32px; font-weight: 800; margin:0">NATAOBAO</h1>
-            <p style="opacity: 0.4; font-size: 14px;">Logistics & Terminal</p>
-        </div>
+        <h1 style="text-align:center; color:white; margin-top:50px">NATAOBAO</h1>
         <div class="card">
-            <input type="text" id="r-n" placeholder="Имя">
-            <input type="text" id="r-c" placeholder="Ваш код (A105)">
-            <button class="btn" onclick="send({a:'reg', n:v('r-n'), c:v('r-c')})">Создать профиль</button>
+            <input type="text" id="r-n" placeholder="Ваше Имя">
+            <input type="text" id="r-c" placeholder="Ваш код (например A105)">
+            <button class="btn" onclick="send({a:'reg', n:v('r-n'), c:v('r-c')})">ЗАРЕГИСТРИРОВАТЬСЯ</button>
         </div>
     </div>
 
-    <div id="scr-wait" class="hidden" style="text-align:center; margin-top:150px">
-        <h2>ОЖИДАНИЕ</h2>
-        <p style="opacity:0.6">Ваш аккаунт проверяется администратором.</p>
+    <div id="scr-wait" class="hidden" style="text-align:center; margin-top:100px">
+        <h2 style="color:var(--red)">⌛ ОЖИДАНИЕ</h2>
+        <p>Ваша заявка на проверке у администратора.</p>
     </div>
 
     <div id="scr-main" class="hidden">
         <div id="pg-profile" class="page">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px">
-                <div><h2 id="u-n">...</h2><div id="u-c-top" style="color:var(--red); font-weight:800; font-size:14px"></div></div>
-                <div style="background:var(--card-base); padding:10px; border-radius:14px; color:white" onclick="location.reload()">🔄</div>
-            </div>
+            <h2 id="u-n">...</h2>
+            <div id="u-c-top" style="color:var(--red); font-weight:800; font-size:14px; margin-bottom:15px"></div>
+            
+            <h3>Личное уведомление</h3>
+            <div class="card" id="personal-notif" style="color:var(--green); font-weight:600; border-color:var(--green)">Нет новых сообщений</div>
+            
+            <h3>Ваши грузы</h3>
             <div id="p-list"></div>
         </div>
 
         <div id="pg-info" class="page hidden">
-            <h3>Склад</h3><div class="card" id="view-adr"></div>
-            <h3>Оплата</h3><div class="card" id="view-rek"></div>
+            <h3>Общее объявление</h3>
+            <div class="card" id="view-notif" style="color:var(--blue); font-weight:700"></div>
+            <h3>Реквизиты и Склад</h3>
+            <div class="card" id="view-adr"></div>
         </div>
 
         <div id="pg-admin" class="page hidden">
-            <h3>📦 1. ПРИЕМКА ГРУЗА</h3>
-            <div class="card" style="border-color: var(--neon-blue)">
-                <div style="display:flex; gap:10px; margin-bottom:10px">
-                    <input type="text" id="a-c" placeholder="Код клиента (A105)" style="margin:0">
-                    <button class="btn btn-outline" style="width:60px" onclick="scanBarcode('a-c')">📷</button>
+            <h3>📦 1. Приемка (Штрих-код)</h3>
+            <div class="card" style="border-color:var(--blue)">
+                <div style="display:flex; gap:5px">
+                    <input type="text" id="adm-tr" placeholder="Сканируйте штрих-код">
+                    <button class="btn" style="width:50px; background:var(--border)" onclick="scan('adm-tr')">📷</button>
                 </div>
-                <div style="font-size:11px; color:var(--neon-blue); margin-bottom:15px; font-weight:bold">Статус: 🚚 ЕДЕТ В ЯКУТСК (авто)</div>
-                <button class="btn btn-admin" onclick="send({a:'add_cargo', c:v('a-c')})">ЗАРЕГИСТРИРОВАТЬ ТРЕК</button>
+                <input type="text" id="adm-cl" placeholder="Код клиента (например A105)">
+                <button class="btn btn-adm" onclick="send({a:'add', t:v('adm-tr'), c:v('adm-cl')})">ПРИНЯТЬ НА СКЛАД</button>
             </div>
 
-            <h3>⚖️ 2. ВЗВЕШИВАНИЕ</h3>
-            <div class="card" style="border-color: var(--green)">
-                <div style="display:flex; gap:10px; margin-bottom:10px">
-                    <input type="text" id="w-c" placeholder="Код клиента" style="margin:0">
-                    <button class="btn btn-outline" style="width:60px" onclick="scanBarcode('w-c')">📷</button>
+            <h3>⚖️ 2. Взвешивание</h3>
+            <div class="card" style="border-color:var(--green)">
+                <div style="display:flex; gap:5px">
+                    <input type="text" id="w-tr" placeholder="Штрих-код">
+                    <button class="btn" style="width:50px; background:var(--border)" onclick="scan('w-tr')">📷</button>
                 </div>
-                <input type="number" id="w-val" placeholder="Введите вес (кг)">
-                <div id="live-price" style="font-size:12px; color:var(--green); margin: 5px 0 15px 5px; font-weight:bold">Итого: 0 ₽</div>
-                <button class="btn" style="background:var(--green); color:black" onclick="send({a:'weight_cargo', c:v('w-c'), w:v('w-val')})">ПОДТВЕРДИТЬ ВЕС</button>
+                <input type="number" id="w-val" placeholder="Вес кг (точка для дроби)">
+                <button class="btn" style="background:var(--green); color:black" onclick="send({a:'weight', t:v('w-tr'), w:v('w-val')})">ОБНОВИТЬ ВЕС</button>
             </div>
 
-            <h3>👥 КЛИЕНТЫ И ЗАЯВКИ</h3>
-            <div id="user-requests"></div>
-            <div class="card" id="all-users-list" style="font-size:13px"></div>
-
-            <h3>⚙️ НАСТРОЙКИ</h3>
-            <div class="card">
-                <input type="text" id="ed-notif" placeholder="Общее объявление">
-                <button class="btn btn-outline" onclick="send({a:'set', k:'notif', v:v('ed-notif')})">Обновить текст</button>
-            </div>
+            <h3>👥 Заявки на вход</h3>
+            <div id="user-reqs"></div>
         </div>
     </div>
 
@@ -104,23 +104,12 @@
 
     <script>
         const tg = window.Telegram.WebApp;
-        const url = new URLSearchParams(window.location.search);
-        const v = (id) => document.getElementById(id).value;
-        const n = url.get('n'), r = url.get('r'), code = url.get('c'), app = url.get('app');
+        const url = new URLSearchParams(location.search);
+        
+        tg.expand();
+        tg.setHeaderColor('#0d0d0f');
 
-        // Живой расчет цены при вводе веса
-        document.getElementById('w-val').addEventListener('input', function(e) {
-            const price = Math.round(e.target.value * 570);
-            document.getElementById('live-price').innerText = `Итого: ${price} ₽`;
-        });
-
-        function scanBarcode(targetId) {
-            tg.showScanQrPopup({ text: "Сканируйте трек-код" }, function(text) {
-                document.getElementById(targetId).value = text;
-                tg.closeScanQrPopup();
-                return true;
-            });
-        }
+        const n = url.get('n'), r = url.get('r'), c = url.get('c'), app = url.get('app');
 
         if (!n || n === 'None') {
             document.getElementById('scr-auth').classList.remove('hidden');
@@ -129,46 +118,46 @@
         } else {
             document.getElementById('scr-main').classList.remove('hidden');
             document.getElementById('navbar').classList.remove('hidden');
-            document.getElementById('u-n').innerText = n; document.getElementById('u-c-top').innerText = code;
-            document.getElementById('view-adr').innerText = url.get('adr') || '—';
-            document.getElementById('view-rek').innerText = url.get('rek') || '—';
+            document.getElementById('u-n').innerText = n;
+            document.getElementById('u-c-top').innerText = 'Код: ' + c;
+            document.getElementById('view-notif').innerText = url.get('nt') || 'Новостей нет';
+            document.getElementById('view-adr').innerText = (url.get('adr') || '') + '\n\n' + (url.get('rek') || '');
+            
+            // Личное уведомление
+            const pNt = url.get('p_nt');
+            if(pNt && pNt !== 'None') document.getElementById('personal-notif').innerText = pNt;
 
             if (r === 'Admin') {
                 document.getElementById('nav-adm').classList.remove('hidden');
-                const uData = url.get('u_list');
-                if(uData) {
-                    let allStr = "";
-                    uData.split(';').forEach(u => {
+                const uL = url.get('u_list');
+                if(uL) {
+                    let h = "";
+                    uL.split(';').forEach(u => {
                         const [un, uc, ua, ut] = u.split('|');
-                        allStr += `<div style="padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.05)">${ua==='1'?'✅':'⏳'} ${un} (<b>${uc}</b>)</div>`;
-                        if(ua === '0') {
-                            document.getElementById('user-requests').innerHTML += `
-                            <div class="card" style="border-color:var(--red)">
-                                <b>${un} (${uc})</b><br><br>
-                                <button class="btn btn-admin" style="padding:10px" onclick="send({a:'app_user', tid:${ut}})">ОДОБРИТЬ</button>
-                            </div>`;
-                        }
+                        if(ua === '0') h += `<div class="card"><b>${un} (${uc})</b><br><br><button class="btn btn-adm" onclick="send({a:'app', tid:${ut}})">ОДОБРИТЬ</button></div>`;
                     });
-                    document.getElementById('all-users-list').innerHTML = allStr;
+                    document.getElementById('user-reqs').innerHTML = h || "Заявок нет";
                 }
             }
 
             const parcels = url.get('p');
             if(parcels) {
+                let pH = "";
                 parcels.split(';').forEach(p => {
-                    const [w, s, d, c_code, id, cnt] = p.split('|');
-                    if(r === 'Admin' || c_code === code) {
-                        const isReady = s.includes('ГОТОВ');
-                        document.getElementById('p-list').innerHTML += `
-                            <div class="card">
-                                <div class="status ${isReady ? 'status-ready' : 'status-way'}">${s}</div>
-                                <div style="display:flex; justify-content:space-between; align-items:flex-end">
-                                    <div><div class="weight-view">${w} кг</div><div style="color:var(--green); font-weight:600">${Math.round(w*570)} ₽</div></div>
-                                    <div style="text-align:right; opacity:0.4; font-size:11px">${d}<br>${r==='Admin' ? `<b style="color:red" onclick="send({a:'del', id:${id}})">УДАЛИТЬ</b>` : ''}</div>
-                                </div>
-                            </div>`;
+                    if(!p) return;
+                    const [w, s, d, cc, id, tr] = p.split('|');
+                    if(r === 'Admin' || cc === c) {
+                        const ready = s.includes('ГОТОВ');
+                        pH += `<div class="card">
+                            <div class="status ${ready?'s-ready':'s-way'}">${s}</div>
+                            <div style="display:flex; justify-content:space-between; align-items:flex-end">
+                                <div><div style="font-size:24px; font-weight:800; color:white">${w} кг</div><div style="color:var(--green)">${Math.round(w*570)} ₽</div></div>
+                                <div style="text-align:right; font-size:10px; opacity:0.4">${tr}<br>${d}<br>${r==='Admin'?`<span style="color:red" onclick="send({a:'del',id:${id}})">УДАЛИТЬ</span>`:''}</div>
+                            </div>
+                        </div>`;
                     }
                 });
+                document.getElementById('p-list').innerHTML = pH || "Посылок нет";
             }
         }
 
@@ -178,9 +167,6 @@
             document.getElementById('pg-' + p).classList.remove('hidden');
             el.classList.add('active');
         }
-        function send(data) { tg.sendData(JSON.stringify(data)); tg.close(); }
-        tg.expand();
-        tg.setHeaderColor('#0d0d0f');
     </script>
 </body>
 </html>
