@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Salgyn Logistics</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root { --primary: #007AFF; --bg: #F2F2F7; --card: #FFFFFF; --text: #000000; --gray: #8E8E93; --green: #34C759; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; color: var(--text); }
+        .loader { position: fixed; inset: 0; background: white; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
+        .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .container { padding: 20px; display: none; }
+        .card { background: var(--card); border-radius: 15px; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 15px; }
+        input, select { width: 100%; border: none; background: #F2F2F7; padding: 12px; border-radius: 10px; margin-top: 5px; box-sizing: border-box; }
+        .btn { width: 100%; background: var(--primary); color: white; border: none; padding: 15px; border-radius: 12px; font-weight: 600; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div id="loader" class="loader"><div class="spinner"></div><p>Загрузка склада...</p></div>
+
+    <div id="main" class="container">
+        <h1>Склад Якутск</h1>
+        <div class="card" id="reg-form">
+            <h3>Регистрация</h3>
+            <input type="text" id="code" placeholder="Персональный код">
+            <input type="text" id="name" placeholder="Ваше имя">
+            <input type="tel" id="phone" placeholder="Ваш телефон">
+            <button class="btn" onclick="send('register')">Зарегистрироваться</button>
+        </div>
+        <div id="admin-panel" style="display:none">
+            <h3>Админ-панель</h3>
+            <input type="number" id="price" placeholder="Цена за кг">
+            <input type="text" id="addr" placeholder="Адрес выдачи">
+            <button class="btn" onclick="send('settings')">Обновить склад</button>
+        </div>
+        <div id="op-panel" style="display:none">
+            <h3>Панель Оператора</h3>
+            <input type="text" id="client_code" placeholder="Код клиента">
+            <input type="number" id="weight" placeholder="Вес (кг)">
+            <select id="status">
+                <option value="Пути в Якутск">🚚 В пути</option>
+                <option value="На сортировке">📦 Сортировка</option>
+                <option value="Прибыл в Якутск">🏠 Прибыл</option>
+                <option value="Взвешен и готов">✅ Готов к выдаче</option>
+            </select>
+            <button class="btn" onclick="send('update_parcel')">Обновить посылку</button>
+        </div>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        setTimeout(() => {
+            document.getElementById('loader').style.display = 'none';
+            document.getElementById('main').style.display = 'block';
+            // Простая проверка: если ты админ (пропишем в боте), покажем админку
+            if(tg.initDataUnsafe.user.id == 12345678) { // ЗАМЕНИ НА СВОЙ ID
+                document.getElementById('admin-panel').style.display = 'block';
+                document.getElementById('op-panel').style.display = 'block';
+            }
+        }, 5000);
+
+        function send(action) {
+            const data = { action: action };
+            if(action === 'register') {
+                data.c = document.getElementById('code').value;
+                data.n = document.getElementById('name').value;
+                data.p = document.getElementById('phone').value;
+            } else if(action === 'update_parcel') {
+                data.c = document.getElementById('client_code').value;
+                data.w = document.getElementById('weight').value;
+                data.s = document.getElementById('status').value;
+            } else if(action === 'settings') {
+                data.pr = document.getElementById('price').value;
+                data.ad = document.getElementById('addr').value;
+            }
+            tg.sendData(JSON.stringify(data));
+        }
+    </script>
+</body>
+</html>
