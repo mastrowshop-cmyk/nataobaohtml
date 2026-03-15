@@ -5,92 +5,152 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         :root { --accent: #007AFF; --red: #FF3B30; --bg: #010101; --card: rgba(28,28,30,0.7); --border: rgba(255,255,255,0.1); --green: #32D74B; }
-        
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: white; margin: 0; padding: 15px; padding-bottom: 100px; overflow-x: hidden; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: white; margin: 0; padding: 15px; padding-bottom: 100px; }
         .hidden { display: none !important; }
-        
-        /* Дизайн карточек */
-        .card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 18px; margin-bottom: 12px; backdrop-filter: blur(15px); animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        h2 { font-weight: 900; letter-spacing: -1px; margin: 0; }
-        h3 { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.5; margin: 20px 0 10px 5px; }
-
-        input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: white; padding: 14px; border-radius: 12px; font-size: 16px; margin-bottom: 10px; box-sizing: border-box; outline: none; transition: 0.2s; }
-        input:focus { border-color: var(--accent); background: rgba(255,255,255,0.1); }
-
-        .btn { width: 100%; padding: 16px; background: white; color: black; border: none; border-radius: 14px; font-weight: 800; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .btn:active { transform: scale(0.97); opacity: 0.8; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 18px; margin-bottom: 12px; backdrop-filter: blur(15px); }
+        h2 { font-weight: 900; margin: 0; }
+        h3 { font-size: 11px; text-transform: uppercase; opacity: 0.5; margin: 20px 0 10px 5px; }
+        input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: white; padding: 14px; border-radius: 12px; font-size: 16px; margin-bottom: 10px; box-sizing: border-box; outline: none; }
+        .btn { width: 100%; padding: 16px; background: white; color: black; border: none; border-radius: 14px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .btn-adm { background: var(--accent); color: white; }
-        .btn-del { background: rgba(255,59,48,0.1); color: var(--red); padding: 5px 10px; border-radius: 8px; font-size: 10px; border: 1px solid rgba(255,59,48,0.2); }
-
-        /* Статусы */
         .status { font-size: 10px; font-weight: 900; padding: 4px 10px; border-radius: 6px; text-transform: uppercase; }
         .s-way { background: rgba(0,122,255,0.15); color: var(--accent); }
         .s-ready { background: rgba(50,215,75,0.15); color: var(--green); }
-
-        /* Навигация */
         .nav { position: fixed; bottom: 20px; left: 15px; right: 15px; background: rgba(25,25,27,0.9); backdrop-filter: blur(25px); border: 1px solid var(--border); border-radius: 25px; display: flex; padding: 6px; z-index: 1000; }
         .nav-item { flex: 1; text-align: center; padding: 12px; font-size: 11px; font-weight: 700; color: #8E8E93; border-radius: 20px; }
         .nav-item.active { color: white; background: rgba(255,255,255,0.1); }
-
-        .user-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+        .user-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
     </style>
 </head>
 <body>
 
     <div id="scr-auth" class="hidden">
-        <div style="text-align:center; margin: 80px 0 40px;"><h2>NATAOBAO</h2><p style="opacity:0.4">Вход в систему</p></div>
+        <div style="text-align:center; margin: 60px 0 30px;"><h2>NATAOBAO</h2></div>
         <div class="card">
             <input type="text" id="r-n" placeholder="Имя">
-            <input type="text" id="r-c" placeholder="Код клиента (например A105)">
-            <button class="btn" onclick="send({a:'reg', n:v('r-n'), c:v('r-c')})">СОЗДАТЬ АККАУНТ</button>
+            <input type="text" id="r-c" placeholder="Код (A105)">
+            <button class="btn" onclick="send({a:'reg', n:v('r-n'), c:v('r-c')})">ЗАРЕГИСТРИРОВАТЬСЯ</button>
         </div>
     </div>
 
-    <div id="scr-wait" class="hidden" style="text-align:center; margin-top:150px">
-        <h2 style="color:var(--accent)">⏳ ДОСТУП ОГРАНИЧЕН</h2>
-        <p style="opacity:0.5; padding: 0 40px;">Администратор проверяет вашу заявку. Пожалуйста, подождите.</p>
-    </div>
+    <div id="scr-wait" class="hidden" style="text-align:center; margin-top:150px"><h2>⏳ ПРОВЕРКА...</h2></div>
 
     <div id="scr-main" class="hidden">
-        
         <div id="pg-profile" class="page">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px">
-                <div><h2 id="u-n">...</h2><div id="u-c-top" style="color:var(--accent); font-weight:900; font-size:14px"></div></div>
-                <div style="background:var(--card); padding:12px; border-radius:15px; border:1px solid var(--border)" onclick="location.reload()">🔄</div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px">
+                <div><h2 id="u-n">...</h2><div id="u-c-top" style="color:var(--accent); font-weight:900"></div></div>
+                <div style="background:var(--card); padding:10px; border-radius:12px; border:1px solid var(--border)" onclick="location.reload()">🔄</div>
             </div>
             <div id="p-list"></div>
         </div>
 
         <div id="pg-info" class="page hidden">
-            <h3>📍 АДРЕС СКЛАДА В КИТАЕ</h3>
-            <div class="card" id="view-adr" style="font-size:14px; line-height:1.5"></div>
-            <h3>💳 РЕКВИЗИТЫ ДЛЯ ОПЛАТЫ</h3>
-            <div class="card" id="view-rek" style="font-size:14px; line-height:1.5"></div>
-            <h3>📢 УВЕДОМЛЕНИЯ</h3>
-            <div class="card" id="view-notif" style="font-size:13px; color:var(--accent)">Нет новых уведомлений</div>
+            <h3>📍 СКЛАД КИТАЙ</h3><div class="card" id="view-adr"></div>
+            <h3>💳 РЕКВИЗИТЫ</h3><div class="card" id="view-rek"></div>
         </div>
 
         <div id="pg-admin" class="page hidden">
-            <h3>📦 1. ПРИЕМКА (СКЛАД КИТАЙ)</h3>
-            <div class="card" style="border-color: var(--accent)">
-                <div style="display:flex; gap:8px; margin-bottom:10px">
-                    <input type="text" id="a-t" placeholder="Трек-номер" style="margin:0">
-                    <button class="btn" style="width:60px; background:var(--border); color:white" onclick="scan('a-t')">📷</button>
-                </div>
-                <input type="text" id="a-c" placeholder="Код клиента">
-                <button class="btn btn-adm" onclick="send({a:'add_cargo', t:v('a-t'), c:v('a-c')})">ЗАРЕГИСТРИРОВАТЬ</button>
+            <div class="card" style="background: var(--accent); color: white; border:none;">
+                <div style="font-size: 10px; font-weight: 800; opacity: 0.7; text-transform: uppercase;">Всего посылок в базе</div>
+                <div style="font-size: 38px; font-weight: 900;" id="total-count">0</div>
             </div>
-
-            <h3>⚖️ 2. ВЗВЕШИВАНИЕ (ЯКУТСК)</h3>
-            <div class="card" style="border-color: var(--green)">
-                <div style="display:flex; gap:8px; margin-bottom:10px">
-                    <input type="text" id="w-t" placeholder="Трек или ID клиента" style="margin:0">
-                    <button class="btn" style="width:60px; background:var(--border); color:white" onclick="scan('w-t')">📷</button>
-                </div>
+            <h3>📦 ПРИЕМКА</h3>
+            <div class="card">
+                <div style="display:flex; gap:8px; margin-bottom:10px"><input type="text" id="a-t" placeholder="Трек"><button class="btn" style="width:60px; background:var(--border); color:white" onclick="scan('a-t')">📷</button></div>
+                <input type="text" id="a-c" placeholder="Код клиента">
+                <button class="btn btn-adm" onclick="send({a:'add_cargo', t:v('a-t'), c:v('a-c')})">ПРИНЯТЬ</button>
+            </div>
+            <h3>⚖️ ВЗВЕШИВАНИЕ</h3>
+            <div class="card">
+                <div style="display:flex; gap:8px; margin-bottom:10px"><input type="text" id="w-t" placeholder="Трек/Код"><button class="btn" style="width:60px; background:var(--border); color:white" onclick="scan('w-t')">📷</button></div>
                 <input type="number" id="w-v" placeholder="Вес (кг)">
-                <div id="live-p" style="color:var(--green); font-weight:900; margin: 5px 0 15px 5px">0 ₽</div>
-                <button class="btn" style="background:var(--green); color:black" onclick="send({a:'weight_cargo', t:v('w-t'), w:v('w-v')})">
+                <div id="live-p" style="color:var(--green); font-weight:900; margin-bottom:10px">0 ₽</div>
+                <button class="btn" style="background:var(--green); color:black" onclick="send({a:'weight_cargo', t:v('w-t'), w:v('w-v')})">СОХРАНИТЬ</button>
+            </div>
+            <h3>👥 КЛИЕНТЫ</h3>
+            <div class="card" id="all-users-list"></div>
+        </div>
+    </div>
+
+    <div id="navbar" class="nav hidden">
+        <div class="nav-item active" onclick="show('profile', this)">ГРУЗЫ</div>
+        <div class="nav-item" onclick="show('info', this)">ИНФО</div>
+        <div id="nav-adm" class="nav-item hidden" onclick="show('admin', this)">АДМИН</div>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        const url = new URLSearchParams(location.search);
+        const v = (id) => document.getElementById(id).value;
+        const n = url.get('n'), r = url.get('r'), code = url.get('c'), app = url.get('app'), price = url.get('pr') || 570;
+
+        tg.expand();
+        document.getElementById('w-v').addEventListener('input', (e) => {
+            document.getElementById('live-p').innerText = `${Math.round(e.target.value * price)} ₽`;
+        });
+
+        function scan(id) {
+            tg.showScanQrPopup({ text: "Сканируйте штрих-код" }, (t) => {
+                document.getElementById(id).value = t;
+                tg.closeScanQrPopup();
+                return true;
+            });
+        }
+
+        if (!n || n === 'None') {
+            document.getElementById('scr-auth').classList.remove('hidden');
+        } else if (app === '0' && r !== 'Admin') {
+            document.getElementById('scr-wait').classList.remove('hidden');
+        } else {
+            document.getElementById('scr-main').classList.remove('hidden');
+            document.getElementById('navbar').classList.remove('hidden');
+            document.getElementById('u-n').innerText = n;
+            document.getElementById('u-c-top').innerText = code;
+            document.getElementById('view-adr').innerText = url.get('adr') || '—';
+            document.getElementById('view-rek').innerText = url.get('rek') || '—';
+
+            if (r === 'Admin') {
+                document.getElementById('nav-adm').classList.remove('hidden');
+                document.getElementById('total-count').innerText = url.get('tp') || '0';
+                const uData = url.get('u_list');
+                if(uData) {
+                    let uH = "";
+                    uData.split(';').forEach(u => {
+                        const [un, uc, ua, ut] = u.split('|');
+                        uH += `<div class="user-row"><span>${ua==='1'?'✅':'⏳'} ${un} (<b>${uc}</b>)</span>${ua==='0' ? `<span style="color:var(--accent)" onclick="send({a:'app_user', tid:${ut}})">ОДОБРИТЬ</span>` : ''}</div>`;
+                    });
+                    document.getElementById('all-users-list').innerHTML = uH || "Пусто";
+                }
+            }
+
+            const parcels = url.get('p');
+            if(parcels) {
+                parcels.split(';').forEach(p => {
+                    const [w, s, d, cc, id, tr] = p.split('|');
+                    if(r === 'Admin' || cc === code) {
+                        const ready = s.includes('ГОТОВ');
+                        document.getElementById('p-list').innerHTML += `
+                            <div class="card">
+                                <div style="display:flex; justify-content:space-between; margin-bottom:10px"><div class="status ${ready?'s-ready':'s-way'}">${s}</div><div style="opacity:0.3; font-size:10px">ID: ${cc}</div></div>
+                                <div style="display:flex; justify-content:space-between; align-items:flex-end">
+                                    <div><div style="font-size:26px; font-weight:900">${w} кг</div><div style="color:var(--green); font-weight:700">${Math.round(w*price)} ₽</div></div>
+                                    <div style="text-align:right; font-size:10px; opacity:0.4">${tr}<br>${d}<br>${r==='Admin' ? `<span style="color:var(--red)" onclick="send({a:'del', id:${id}})">УДАЛИТЬ</span>` : ''}</div>
+                                </div>
+                            </div>`;
+                    }
+                });
+            }
+        }
+
+        function show(p, el) {
+            document.querySelectorAll('.page').forEach(x => x.classList.add('hidden'));
+            document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
+            document.getElementById('pg-' + p).classList.remove('hidden');
+            el.classList.add('active');
+        }
+        function send(data) { tg.sendData(JSON.stringify(data)); tg.close(); }
+    </script>
+</body>
+</html>
