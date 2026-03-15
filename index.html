@@ -3,111 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nataobao Premium</title>
+    <title>Nataobao Pro</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: 'Inter', sans-serif; background: #050505; color: #fff; margin: 0; padding: 15px; }
-        .card { background: #111; border: 1px solid #222; border-radius: 20px; padding: 20px; margin-bottom: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        h1 { color: #ff3e3e; text-align: center; font-size: 28px; text-transform: uppercase; letter-spacing: 2px; margin: 10px 0; }
-        .label { color: #666; font-size: 11px; text-transform: uppercase; font-weight: 700; margin-bottom: 8px; display: block; }
+        body { font-family: 'Inter', sans-serif; background: #000; color: #fff; margin: 0; padding: 15px; }
+        .card { background: #111; border: 1px solid #222; border-radius: 15px; padding: 20px; margin-bottom: 15px; }
+        h1 { color: #ff3e3e; text-align: center; text-transform: uppercase; margin: 0 0 20px; }
+        .label { color: #555; font-size: 10px; font-weight: 800; text-transform: uppercase; margin-bottom: 5px; display: block; }
         
-        input, select { width: 100%; background: #1a1a1a; border: 1px solid #333; color: #fff; padding: 14px; border-radius: 12px; margin-bottom: 15px; box-sizing: border-box; font-size: 16px; transition: 0.3s; }
-        input:focus { border-color: #ff3e3e; background: #222; outline: none; }
+        input, select { width: 100%; background: #1a1a1a; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 10px; margin-bottom: 15px; box-sizing: border-box; }
+        .btn { width: 100%; padding: 15px; border: none; border-radius: 10px; font-weight: 900; text-transform: uppercase; cursor: pointer; }
+        .btn-red { background: #ff3e3e; color: #fff; }
         
-        .btn { width: 100%; padding: 16px; border: none; border-radius: 12px; font-weight: 900; font-size: 15px; text-transform: uppercase; cursor: pointer; transition: 0.3s; }
-        .btn-main { background: #ff3e3e; color: #fff; box-shadow: 0 4px 15px rgba(255, 62, 62, 0.3); }
-        .btn-main:active { transform: scale(0.96); }
-        .btn-admin { background: #fff; color: #000; margin-top: 10px; }
-
-        .parcel-box { background: #1a1a1a; padding: 15px; border-radius: 15px; border-left: 4px solid #ff3e3e; margin-top: 10px; }
-        .hidden { display: none !important; }
-        .badge { background: #ff3e3e; color: #fff; font-size: 10px; padding: 4px 10px; border-radius: 20px; font-weight: bold; float: right; }
+        .parcel-item { background: #1a1a1a; padding: 15px; border-radius: 12px; border-left: 3px solid #ff3e3e; margin-bottom: 10px; }
+        .p-status { font-weight: 900; color: #ff3e3e; display: block; margin-bottom: 5px; }
+        .p-info { font-size: 13px; color: #aaa; }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
-    <div id="badge-role" class="badge">CLIENT</div>
     <h1>Nataobao</h1>
 
-    <div id="reg-form" class="card">
-        <span class="label">Регистрация системы</span>
-        <input type="text" id="name" placeholder="ВАШЕ ИМЯ">
-        <input type="text" id="code" placeholder="ВАШ КОД (НАПР. A105)">
-        <button class="btn btn-main" onclick="saveReg()">СОЗДАТЬ АККАУНТ</button>
+    <div id="reg-form" class="card hidden">
+        <span class="label">Новый профиль</span>
+        <input type="text" id="name" placeholder="ИМЯ">
+        <input type="text" id="code" placeholder="КОД КЛИЕНТА">
+        <button class="btn btn-red" onclick="saveReg()">ЗАРЕГИСТРИРОВАТЬСЯ</button>
     </div>
 
     <div id="client-ui" class="card hidden">
-        <span class="label">Личный кабинет</span>
-        <div id="user-display" style="font-size: 20px; font-weight: 800; margin-bottom: 10px;"></div>
-        <div class="parcel-box">
-            <span class="label">Статус заказов</span>
-            <div id="parcels">Заказов пока нет</div>
-        </div>
+        <span class="label">Ваши отправления</span>
+        <div id="parcel-list">Заказов не найдено.</div>
     </div>
 
     <div id="admin-ui" class="card hidden">
-        <span class="label" style="color: #ff3e3e;">Панель управления</span>
-        <input type="text" id="target_code" placeholder="КОД КЛИЕНТА">
-        <input type="number" id="weight" placeholder="ВЕС (КГ)">
-        <select id="status">
-            <option value="В ПУТИ">🚚 В ПУТИ</option>
-            <option value="НА СКЛАДЕ">📦 НА СКЛАДЕ</option>
-            <option value="ГОТОВ К ВЫДАЧЕ">✅ ГОТОВ</option>
+        <span class="label" style="color:#ff3e3e">Админ-панель</span>
+        <input type="text" id="t_code" placeholder="КОД КЛИЕНТА">
+        <input type="number" id="t_weight" placeholder="ВЕС">
+        <select id="t_status">
+            <option value="В ПУТИ В ЯКУТСК">🚚 В ПУТИ В ЯКУТСК</option>
+            <option value="ПРИБЫЛ В ЯКУТСК">🏠 ПРИБЫЛ В ЯКУТСК</option>
+            <option value="ВЫДАН">🏁 ВЫДАН</option>
         </select>
-        <button class="btn btn-main" onclick="sendAction('update_parcel')">ОБНОВИТЬ СТАТУС</button>
-        
-        <span class="label" style="margin-top:20px;">Глобальные настройки</span>
-        <input type="number" id="price" placeholder="ЦЕНА ЗА КГ (570)">
-        <input type="text" id="addr" placeholder="АДРЕС ВЫДАЧИ">
-        <button class="btn btn-admin" onclick="sendAction('update_settings')">СОХРАНИТЬ КОНФИГ</button>
+        <button class="btn btn-red" onclick="sendAction('update_parcel')">ОБНОВИТЬ СТАТУС</button>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
-        tg.ready();
-        tg.expand();
-
         const params = new URLSearchParams(window.location.search);
-        const role = params.get('role') || 'Client';
         
-        // Магия: берем данные ИЛИ из ссылки ИЛИ из памяти телефона
-        const savedName = params.get('name') || localStorage.getItem('nt_name');
-        const savedCode = params.get('code') || localStorage.getItem('nt_code');
+        const role = params.get('role');
+        const uName = params.get('name');
+        const uCode = params.get('code');
+        const uPrice = parseFloat(params.get('price') || 570);
+        const pData = params.get('p'); // вес|статус;вес|статус
 
-        document.getElementById('badge-role').innerText = role.toUpperCase();
-
-        if (savedName && savedCode) {
-            document.getElementById('reg-form').classList.add('hidden');
+        // 1. Показываем нужные блоки
+        if (!uName || !uCode) {
+            document.getElementById('reg-form').classList.remove('hidden');
+        } else {
             document.getElementById('client-ui').classList.remove('hidden');
-            document.getElementById('user-display').innerText = savedName + " [" + savedCode + "]";
+            renderParcels(pData, uPrice);
         }
 
-        if (role === 'Admin' || role === 'Operator') {
-            document.getElementById('admin-ui').classList.remove('hidden');
+        if (role === 'Admin') document.getElementById('admin-ui').classList.remove('hidden');
+
+        // 2. Отрисовка посылок
+        function renderParcels(data, price) {
+            if (!data) return;
+            const container = document.getElementById('parcel-list');
+            container.innerHTML = "";
+            
+            data.split(';').forEach(item => {
+                const [weight, status] = item.split('|');
+                let info = "";
+                
+                // Взвешивание и цена только если прибыл
+                if (status === "ПРИБЫЛ В ЯКУТСК") {
+                    const total = (parseFloat(weight) * price).toFixed(0);
+                    info = `⚖️ Вес: ${weight} кг | 💰 К оплате: ${total}₽`;
+                } else {
+                    info = "⚖️ Ожидает взвешивания по прибытию";
+                }
+
+                container.innerHTML += `
+                    <div class="parcel-item">
+                        <span class="p-status">${status}</span>
+                        <span class="p-info">${info}</span>
+                    </div>
+                `;
+            });
         }
 
         function saveReg() {
             const n = document.getElementById('name').value;
             const c = document.getElementById('code').value;
-            if(!n || !c) return alert("ВВЕДИ ДАННЫЕ!");
-            
-            // Запоминаем в браузере навсегда
-            localStorage.setItem('nt_name', n);
-            localStorage.setItem('nt_code', c);
-            
-            tg.sendData(JSON.stringify({action: 'register', n: n, c: c}));
+            tg.sendData(JSON.stringify({action:'register', n:n, c:c}));
         }
 
         function sendAction(act) {
-            let data = { action: act };
-            if (act === 'update_parcel') {
-                data.c = document.getElementById('target_code').value;
-                data.w = document.getElementById('weight').value;
-                data.s = document.getElementById('status').value;
-            } else {
-                data.p = document.getElementById('price').value;
-                data.a = document.getElementById('addr').value;
-            }
-            tg.sendData(JSON.stringify(data));
+            const c = document.getElementById('t_code').value;
+            const w = document.getElementById('t_weight').value;
+            const s = document.getElementById('t_status').value;
+            tg.sendData(JSON.stringify({action:act, c:c, w:w, s:s}));
         }
     </script>
 </body>
