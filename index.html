@@ -9,57 +9,54 @@
         body { font-family: -apple-system, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; padding-bottom: 80px; }
         .hidden { display: none !important; }
         .card { background: var(--card); border-radius: 12px; padding: 15px; margin-bottom: 12px; border: 1px solid #30363d; }
-        .btn { width: 100%; padding: 15px; background: var(--main); border: none; color: #fff; font-weight: bold; border-radius: 10px; cursor: pointer; }
-        input, select { width: 100%; background: #0d1117; border: 1px solid #30363d; color: #fff; padding: 12px; border-radius: 10px; margin-bottom: 10px; box-sizing: border-box; }
-        .nav { position: fixed; bottom: 0; left: 0; width: 100%; display: flex; background: #161b22; padding: 15px 0; border-top: 1px solid #30363d; z-index: 100; }
-        .nav-item { flex: 1; text-align: center; font-size: 11px; color: #8b949e; }
-        .nav-item.active { color: var(--main); font-weight: bold; }
-        .label { font-size: 10px; color: #8b949e; text-transform: uppercase; margin-bottom: 5px; display: block; }
+        .btn { width: 100%; padding: 14px; background: var(--main); border: none; color: #fff; font-weight: bold; border-radius: 10px; font-size: 16px; }
+        input, select { width: 100%; background: #0d1117; border: 1px solid #30363d; color: #fff; padding: 12px; border-radius: 8px; margin-bottom: 10px; box-sizing: border-box; }
+        .nav { position: fixed; bottom: 0; left: 0; width: 100%; display: flex; background: #161b22; padding: 15px 0; border-top: 1px solid #30363d; }
+        .nav-item { flex: 1; text-align: center; font-size: 11px; color: #8b949e; text-transform: uppercase; font-weight: 600; }
+        .nav-item.active { color: var(--main); }
+        .badge { font-size: 10px; background: #30363d; padding: 2px 6px; border-radius: 4px; }
     </style>
 </head>
 <body>
 
     <div id="scr-auth" class="hidden">
-        <h2 style="text-align:center">CARGO HUB</h2>
+        <h2 style="text-align:center; margin-top:50px;">CARGO HUB</h2>
         <div class="card">
-            <input type="text" id="r-n" placeholder="Ваше Имя">
-            <input type="text" id="r-c" placeholder="Ваш Код (A105)">
-            <button class="btn" onclick="send({a:'reg', n:v('r-n'), c:v('r-c')})">СОЗДАТЬ ПРОФИЛЬ</button>
+            <input type="text" id="r-n" placeholder="Имя Фамилия">
+            <input type="text" id="r-c" placeholder="Ваш ID (например A105)">
+            <button class="btn" onclick="send({a:'reg', n:v('r-n'), c:v('r-c')})">СОЗДАТЬ АККАУНТ</button>
         </div>
     </div>
 
     <div id="scr-main" class="hidden">
-        
         <div id="pg-profile" class="page">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
-                <div><small id="u-role" class="label">CLIENT</small><h2 id="u-name" style="margin:0">...</h2></div>
-                <div id="u-code" style="color:var(--main); font-weight:bold; font-size:1.2em">...</div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <div><span class="badge" id="u-role">CLIENT</span><h2 id="u-name" style="margin:5px 0 0 0">...</h2></div>
+                <div id="u-code" style="color:var(--main); font-weight:bold; font-size:1.3em">...</div>
             </div>
             <div id="p-list"></div>
         </div>
 
         <div id="pg-info" class="page hidden">
-            <span class="label">📍 Адрес для получения товара</span>
-            <div class="card" id="view-adr" style="color:white; font-weight:bold">...</div>
-            <span class="label">💳 Реквизиты для оплаты</span>
-            <div class="card" id="view-rek" style="color:#00f260">...</div>
+            <h3 style="color:var(--main)">📍 АДРЕС СКЛАДА</h3>
+            <div class="card" id="view-adr">Загрузка...</div>
+            <h3 style="color:var(--main)">💳 РЕКВИЗИТЫ ОПЛАТЫ</h3>
+            <div class="card" id="view-rek">Загрузка...</div>
         </div>
 
         <div id="pg-admin" class="page hidden">
-            <h3 style="color:var(--main)">🛠 ПАНЕЛЬ УПРАВЛЕНИЯ</h3>
+            <h3 style="color:var(--main)">🛠 УПРАВЛЕНИЕ</h3>
             <div class="card">
-                <span class="label">Добавить посылку</span>
                 <input type="text" id="a-c" placeholder="Код клиента">
-                <input type="number" id="a-w" placeholder="Вес кг">
+                <input type="number" id="a-w" step="0.1" placeholder="Вес (кг)">
                 <select id="a-s"><option>🚚 В ПУТИ</option><option>🏁 ГОТОВ</option></select>
-                <button class="btn" onclick="addP()">ДОБАВИТЬ И ОПОВЕСТИТЬ</button>
+                <button class="btn" onclick="addP()">ДОБАВИТЬ ГРУЗ</button>
             </div>
             <div class="card">
-                <span class="label">Изменить данные склада</span>
-                <input type="text" id="ed-adr" placeholder="Новый адрес">
-                <button class="btn" style="background:#333; margin-bottom:10px" onclick="setS('adr', v('ed-adr'))">ОБНОВИТЬ АДРЕС</button>
+                <input type="text" id="ed-adr" placeholder="Новый адрес склада">
+                <button class="btn" style="background:#333; margin-bottom:8px" onclick="setS('adr', v('ed-adr'))">ИЗМЕНИТЬ АДРЕС</button>
                 <input type="text" id="ed-rek" placeholder="Новые реквизиты">
-                <button class="btn" style="background:#333" onclick="setS('rek', v('ed-rek'))">ОБНОВИТЬ ОПЛАТУ</button>
+                <button class="btn" style="background:#333" onclick="setS('rek', v('ed-rek'))">ИЗМЕНИТЬ ОПЛАТУ</button>
             </div>
         </div>
     </div>
@@ -72,40 +69,44 @@
 
     <script>
         const tg = window.Telegram.WebApp;
-        tg.expand();
-        // Включаем Pull-to-Refresh для автообновления
-        tg.enableClosingConfirmation();
-
-        const url = new URLSearchParams(window.location.search);
+        const tid = new URLSearchParams(window.location.search).get('tid');
         const v = (id) => document.getElementById(id).value;
-        const n = url.get('n'), r = url.get('r'), c = url.get('c');
 
-        if (!n || n === 'None') {
-            document.getElementById('scr-auth').classList.remove('hidden');
-        } else {
-            document.getElementById('scr-main').classList.remove('hidden');
-            document.getElementById('navbar').classList.remove('hidden');
-            document.getElementById('u-name').innerText = n;
-            document.getElementById('u-code').innerText = c;
-            document.getElementById('view-adr').innerText = url.get('adr');
-            document.getElementById('view-rek').innerText = url.get('rek');
+        async function refresh() {
+            try {
+                // !!! ЗАМЕНИ НА СВОЙ IP !!!
+                const res = await fetch(`http://ТВОЙ_IP_СЕРВЕРА:8080/data?tid=${tid}`);
+                const d = await res.json();
+                
+                if(d.err) {
+                    document.getElementById('scr-auth').classList.remove('hidden');
+                    return;
+                }
 
-            if (r === 'Admin') {
-                document.getElementById('u-role').innerText = "MANAGER";
-                document.getElementById('nav-adm').classList.remove('hidden');
-            }
+                document.getElementById('scr-main').classList.remove('hidden');
+                document.getElementById('navbar').classList.remove('hidden');
+                document.getElementById('u-name').innerText = d.n;
+                document.getElementById('u-code').innerText = d.c;
+                document.getElementById('view-adr').innerText = d.adr;
+                document.getElementById('view-rek').innerText = d.rek;
 
-            const parcels = url.get('p');
-            if(parcels) {
-                parcels.split(';').forEach(p => {
-                    const [w, s, d, code, id] = p.split('|');
-                    document.getElementById('p-list').innerHTML += `
-                        <div class="card" style="border-left: 4px solid ${s.includes('ГОТОВ') ? '#00f260' : '#3498db'}">
-                            <b>${s}</b> <small style="float:right">${d}</small><br>
-                            <small>Вес: ${w} кг | Клиент: ${code}</small>
-                        </div>`;
+                if(d.r === 'Admin') {
+                    document.getElementById('u-role').innerText = "MANAGER";
+                    document.getElementById('nav-adm').classList.remove('hidden');
+                }
+
+                let html = '';
+                if(d.p.length === 0) html = '<p style="text-align:center; color:#555">Грузов пока нет</p>';
+                d.p.forEach(x => {
+                    const isReady = x[1].includes('ГОТОВ');
+                    html += `<div class="card" style="border-left: 4px solid ${isReady ? '#00f260':'#3498db'}">
+                        <div style="display:flex; justify-content:space-between"><b>${x[1]}</b> <small>${x[2]}</small></div>
+                        <div style="margin-top:5px; font-size:0.9em">Вес: ${x[0]} кг ${d.r === 'Admin' ? `| ID: ${x[3]}` : ''}</div>
+                        ${d.r === 'Admin' ? `<button onclick="delP(${x[4]})" style="background:none; border:none; color:red; float:right; padding:0">УДАЛИТЬ</button><br>` : ''}
+                    </div>`;
                 });
-            }
+                document.getElementById('p-list').innerHTML = html;
+            } catch(e) { console.error("API Error"); }
         }
 
         function show(p, el) {
@@ -117,7 +118,12 @@
 
         function send(data) { tg.sendData(JSON.stringify(data)); }
         function addP() { send({a:'add', c:v('a-c'), w:v('a-w'), s:v('a-s')}); }
-        function setS(key, val) { if(val) send({a:'set', k:key, v:val}); }
+        function delP(id) { if(confirm('Удалить?')) send({a:'del', id:id}); }
+        function setS(k, val) { if(val) send({a:'set', k:k, v:val}); }
+
+        tg.expand();
+        refresh();
+        setInterval(refresh, 5000); // Автообновление каждые 5 сек
     </script>
 </body>
 </html>
