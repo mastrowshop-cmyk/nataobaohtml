@@ -3,30 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nataobao Elite</title>
+    <title>Nataobao Terminal</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --red: #ff3e3e; --bg: #000; --card: #111; --gray: #888; --green: #2ecc71; }
+        :root { --red: #ff3e3e; --bg: #000; --card: #111; --gray: #888; --green: #2ecc71; --blue: #3498db; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: #fff; margin: 0; padding-bottom: 90px; }
         .container { padding: 15px; }
         .card { background: var(--card); border: 1px solid #222; border-radius: 20px; padding: 20px; margin-bottom: 15px; }
         
-        /* Авторизация */
-        #auth-screen { text-align: center; padding-top: 50px; }
-        
-        /* Профиль и Статусы */
         .user-info { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
         .avatar { width: 50px; height: 50px; background: var(--red); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; }
+        
         .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: center; }
         .stat-item { background: #1a1a1a; padding: 10px; border-radius: 12px; }
 
-        /* Заказы */
-        .parcel-card { border-left: 4px solid var(--red); padding: 12px; background: #0a0a0a; border-radius: 12px; margin-top: 10px; border: 1px solid #222; border-left: 4px solid var(--red); }
-        .st-path { border-left-color: #f1c40f; }
-        .st-ready { border-left-color: var(--green); }
+        /* СТАТУСЫ */
+        .parcel-card { padding: 15px; background: #0a0a0a; border-radius: 15px; margin-top: 10px; border: 1px solid #222; border-left: 5px solid #333; }
+        .st-path { border-left-color: #f1c40f; } /* В ПУТИ - Желтый */
+        .st-ready { border-left-color: var(--blue); } /* ПРИБЫЛ - Синий */
+        .st-done { border-left-color: var(--green); } /* ГОТОВ - Зеленый */
 
-        /* Навигация */
-        .nav { position: fixed; bottom: 0; width: 100%; background: #0a0a0a; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #222; z-index: 1000; }
+        .nav { position: fixed; bottom: 0; width: 100%; background: #0a0a0a; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #222; }
         .nav-btn { color: var(--gray); font-size: 10px; text-transform: uppercase; font-weight: 800; cursor: pointer; text-align: center; }
         .nav-btn.active { color: var(--red); }
 
@@ -34,17 +31,17 @@
         .btn { width: 100%; padding: 15px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
         .btn-red { background: var(--red); color: #fff; }
         .hidden { display: none !important; }
+        .news-img { width: 100%; border-radius: 10px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
     <div class="container">
         <div id="auth-screen" class="hidden">
-            <h1 style="color:var(--red)">NATAOBAO</h1>
-            <p>Зарегистрируйтесь, чтобы видеть заказы</p>
-            <input type="text" id="reg_n" placeholder="Ваше имя">
-            <input type="text" id="reg_c" placeholder="Ваш код (например, A105)">
-            <button class="btn btn-red" onclick="register()">ВОЙТИ</button>
+            <h1 style="color:var(--red); text-align:center;">NATAOBAO</h1>
+            <input type="text" id="reg_n" placeholder="Имя">
+            <input type="text" id="reg_c" placeholder="Код (напр. A105)">
+            <button class="btn btn-red" onclick="register()">СОЗДАТЬ АККАУНТ</button>
         </div>
 
         <div id="main-content">
@@ -58,16 +55,16 @@
                         </div>
                     </div>
                     <div class="stat-grid">
-                        <div class="stat-item"><span id="c-all">0</span><br><small>ВСЕГО</small></div>
-                        <div class="stat-item"><span id="c-sum" style="color:var(--green)">0₽</span><br><small>К ОПЛАТЕ</small></div>
+                        <div class="stat-item"><span id="c-all" style="font-size:18px; font-weight:bold;">0</span><br><small>ПОСЫЛОК</small></div>
+                        <div class="stat-item"><span id="c-sum" style="color:var(--green); font-size:18px; font-weight:bold;">0₽</span><br><small>К ОПЛАТЕ</small></div>
                     </div>
                 </div>
 
-                <div class="card" style="font-size: 12px; border: 1px dashed #444;">
-                    <b style="color:var(--red)">📍 АДРЕС СКЛАДА В КИТАЕ:</b><br>
-                    广东省 佛山市 南海区 里水镇 洲村里广路 132号 (NATAOBAO + ТВОЙ КОД)<br><br>
+                <div class="card" style="font-size: 13px;">
+                    <b style="color:var(--red)">📍 АДРЕС ПОЛУЧЕНИЯ (ЯКУТСК):</b><br>
+                    [ВСТАВЬ СВОЙ АДРЕС ТУТ]<br><br>
                     <b style="color:var(--green)">💳 РЕКВИЗИТЫ ДЛЯ ОПЛАТЫ:</b><br>
-                    СБП / Т-Банк: +7 (9XX) XXX-XX-XX (Ерсан С.)
+                    [ВСТАВЬ НОМЕР КАРТЫ ТУТ]
                 </div>
 
                 <h3 style="font-size:14px; margin-left:10px;">МОИ ПОСЫЛКИ</h3>
@@ -75,29 +72,30 @@
             </div>
 
             <div id="p-news" class="page hidden">
-                <div id="news-list">Загрузка новостей...</div>
+                <h3 style="margin-left:10px;">УВЕДОМЛЕНИЯ</h3>
+                <div id="news-list"></div>
             </div>
 
             <div id="p-admin" class="page hidden">
                 <div class="card">
-                    <span style="color:var(--red); font-weight:800; font-size:12px;">УПРАВЛЕНИЕ ЗАКАЗАМИ</span>
+                    <span style="color:var(--red); font-weight:800; font-size:11px;">СКЛАД</span>
                     <input type="text" id="adm_c" placeholder="Код клиента">
                     <input type="number" id="adm_w" placeholder="Вес">
                     <select id="adm_s">
                         <option value="В ПУТИ">🚚 В ПУТИ</option>
                         <option value="ПРИБЫЛ В ЯКУТСК">🏠 ПРИБЫЛ В ЯКУТСК</option>
-                        <option value="ВЫДАН">🏁 ВЫДАН</option>
+                        <option value="ГОТОВ К ВЫДАЧЕ">🏁 ГОТОВ К ВЫДАЧЕ</option>
                     </select>
-                    <button class="btn btn-red" onclick="adminAction('update_parcel')">ДОБАВИТЬ/ОБНОВИТЬ</button>
+                    <button class="btn btn-red" onclick="adminAction('update_parcel')">ОБНОВИТЬ</button>
                 </div>
 
                 <div class="card">
-                    <span style="color:var(--green); font-weight:800; font-size:12px;">РАССЫЛКА С ФОТО</span>
+                    <span style="color:var(--green); font-weight:800; font-size:11px;">ОПОВЕЩЕНИЕ</span>
                     <textarea id="msg_t" placeholder="Текст..."></textarea>
-                    <input type="file" id="file_in" style="display:none" onchange="uploadToImgBB(this)">
-                    <button class="btn" style="background:#222; margin-bottom:10px;" onclick="document.getElementById('file_in').click()">🖼 ГАЛЕРЕЯ</button>
+                    <input type="file" id="file_in" style="display:none" onchange="uploadPhoto(this)">
+                    <button class="btn" style="background:#222; margin-bottom:10px;" onclick="document.getElementById('file_in').click()">📸 ГАЛЕРЕЯ</button>
                     <input type="hidden" id="msg_p">
-                    <button class="btn" style="background:var(--green); color:#fff" onclick="adminAction('broadcast')">ОТПРАВИТЬ</button>
+                    <button class="btn" style="background:var(--green); color:#fff" onclick="adminAction('broadcast')">РАССЫЛКА</button>
                 </div>
             </div>
         </div>
@@ -105,7 +103,7 @@
 
     <div class="nav">
         <div class="nav-btn active" onclick="showP('profile', this)">👤 Профиль</div>
-        <div class="nav-btn" onclick="showP('news', this)">🔔 Новости</div>
+        <div class="nav-btn" onclick="showP('news', this)">🔔 Уведомления</div>
         <div id="adm-btn" class="nav-btn hidden" onclick="showP('admin', this)">🛡 Админ</div>
     </div>
 
@@ -113,13 +111,13 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
         const urlParams = new URLSearchParams(window.location.search);
+        
         const name = urlParams.get('name');
         const code = urlParams.get('code');
         const role = urlParams.get('role');
         const parcels = urlParams.get('p') || "";
         const news = urlParams.get('news') || "";
 
-        // Проверка авторизации
         if (!name || name === "None") {
             document.getElementById('auth-screen').classList.remove('hidden');
             document.getElementById('main-content').classList.add('hidden');
@@ -128,7 +126,7 @@
             document.getElementById('u-code').innerText = "ID: " + code;
             document.getElementById('av').innerText = name[0].toUpperCase();
             if (role === 'Admin') document.getElementById('adm-btn').classList.remove('hidden');
-            renderApp();
+            renderData();
         }
 
         function showP(id, el) {
@@ -138,81 +136,77 @@
             el.classList.add('active');
         }
 
-        function renderApp() {
-            // Рендер заказов
+        function renderData() {
+            // ПОСЫЛКИ
             const list = document.getElementById('parcel-list');
             list.innerHTML = "";
-            let totalSum = 0;
-            let count = 0;
+            let total = 0, count = 0;
 
             if (parcels) {
                 parcels.split(';').forEach(p => {
-                    const [weight, status] = p.split('|');
+                    const [w, s] = p.split('|');
                     count++;
-                    let isReady = status.includes("ЯКУТСК");
-                    let cost = isReady ? Math.round(parseFloat(weight) * 570) : 0;
-                    if (isReady) totalSum += cost;
+                    let cls = "st-path";
+                    if(s.includes("ЯКУТСК")) cls = "st-ready";
+                    if(s.includes("ГОТОВ")) cls = "st-done";
+
+                    let price = (s.includes("ЯКУТСК") || s.includes("ГОТОВ")) ? Math.round(w * 570) : 0;
+                    total += price;
 
                     list.innerHTML += `
-                        <div class="parcel-card ${isReady ? 'st-ready' : 'st-path'}">
-                            <div style="display:flex; justify-content:space-between">
-                                <b>${status}</b>
-                                <b style="color:var(--green)">${cost > 0 ? cost + '₽' : 'Расчет...'}</b>
+                        <div class="parcel-card ${cls}">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <b style="font-size:14px;">${s}</b>
+                                <b style="color:var(--green)">${price > 0 ? price + '₽' : 'Расчет...'}</b>
                             </div>
-                            <div style="font-size:12px; color:#666; margin-top:5px;">Вес: ${weight} кг</div>
+                            <div style="font-size:12px; color:#555; margin-top:5px;">Вес: ${w} кг</div>
                         </div>`;
                 });
             }
             document.getElementById('c-all').innerText = count;
-            document.getElementById('c-sum').innerText = totalSum + "₽";
+            document.getElementById('c-sum').innerText = total + "₽";
 
-            // Рендер новостей
+            // УВЕДОМЛЕНИЯ
             const nList = document.getElementById('news-list');
             nList.innerHTML = "";
             if (news) {
                 news.split(';').forEach(n => {
-                    const [txt, img] = n.split('|');
+                    const [t, i] = n.split('|');
                     nList.innerHTML += `
                         <div class="card" style="padding:0; overflow:hidden;">
-                            ${img ? `<img src="${img}" style="width:100%">` : ""}
-                            <div style="padding:15px; font-size:14px;">${txt}</div>
+                            ${i ? `<img src="${i}" class="news-img">` : ""}
+                            <div style="padding:15px;">${t}</div>
                         </div>`;
                 });
-            } else { nList.innerText = "Новостей пока нет"; }
+            }
+        }
+
+        async function uploadPhoto(input) {
+            const formData = new FormData();
+            formData.append("image", input.files[0]);
+            const res = await fetch("https://api.imgbb.com/1/upload?key=6d207e021112421aa6c40683a677e113", { method: "POST", body: formData });
+            const json = await res.json();
+            document.getElementById('msg_p').value = json.data.url;
+            alert("Фото загружено!");
         }
 
         function register() {
             const n = document.getElementById('reg_n').value;
             const c = document.getElementById('reg_c').value;
-            if(!n || !c) return alert("Заполни данные!");
-            tg.sendData(JSON.stringify({action: 'register', n: n, c: c}));
+            tg.sendData(JSON.stringify({action: 'register', n:n, c:c}));
         }
 
         function adminAction(act) {
-            let data = {action: act};
+            let d = {action: act};
             if(act === 'update_parcel') {
-                data.c = document.getElementById('adm_c').value;
-                data.w = document.getElementById('adm_w').value;
-                data.s = document.getElementById('adm_s').value;
+                d.c = document.getElementById('adm_c').value;
+                d.w = document.getElementById('adm_w').value;
+                d.s = document.getElementById('adm_s').value;
             } else {
-                data.t = document.getElementById('msg_t').value;
-                data.p = document.getElementById('msg_p').value;
+                d.t = document.getElementById('msg_t').value;
+                d.p = document.getElementById('msg_p').value;
             }
-            tg.sendData(JSON.stringify(data));
-        }
-
-        async function uploadToImgBB(input) {
-            const file = input.files[0];
-            const formData = new FormData();
-            formData.append("image", file);
-            // Твой ключ API
-            const res = await fetch("https://api.imgbb.com/1/upload?key=6d207e021112421aa6c40683a677e113", {
-                method: "POST",
-                body: formData
-            });
-            const json = await res.json();
-            document.getElementById('msg_p').value = json.data.url;
-            alert("Фото готово к отправке!");
+            tg.sendData(JSON.stringify(d));
         }
     </script>
 </body>
