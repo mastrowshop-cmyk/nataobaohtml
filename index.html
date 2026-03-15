@@ -7,16 +7,17 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root { --red: #ff3e3e; --bg: #000; --card: #111; --gray: #888; --green: #2ecc71; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #fff; margin: 0; padding: 15px; padding-bottom: 90px; }
+        body { font-family: sans-serif; background: var(--bg); color: #fff; margin: 0; padding: 15px; padding-bottom: 80px; }
         .card { background: var(--card); border: 1px solid #222; border-radius: 15px; padding: 15px; margin-bottom: 15px; }
-        .nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #0a0a0a; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #222; z-index: 1000; }
-        .nav-btn { color: var(--gray); font-size: 10px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
+        .nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #0a0a0a; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #222; }
+        .nav-btn { color: var(--gray); font-size: 11px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
         .nav-btn.active { color: var(--red); }
         .btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; text-transform: uppercase; margin-bottom: 10px; }
         .btn-red { background: var(--red); color: #fff; }
         input, textarea, select { width: 100%; background: #1a1a1a; border: 1px solid #333; color: #fff; padding: 12px; border-radius: 10px; margin-bottom: 10px; box-sizing: border-box; }
         .hidden { display: none !important; }
-        .parcel-card { padding: 10px; background: #000; border-radius: 10px; border-left: 4px solid #333; margin-top: 10px; font-size: 13px; }
+        .parcel { padding: 10px; background: #000; border-radius: 10px; border-left: 4px solid #333; margin-top: 10px; font-size: 13px; }
+        img { max-width: 100%; border-radius: 10px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -30,14 +31,14 @@
     <div id="main-content">
         <div id="p-profile" class="page">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <b id="u-name">Загрузка...</b>
+                <b id="u-name">...</b>
                 <button onclick="sendToBot('refresh')" style="background:none; color:var(--red); border:none; font-size:11px;">🔄 ОБНОВИТЬ</button>
             </div>
             <div class="card">
                 <div id="u-code" style="color:var(--red); font-weight:bold; margin-bottom:10px;">ID: ---</div>
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; text-align:center;">
-                    <div style="background:#000; padding:10px; border-radius:10px;"><span id="c-all">0</span><br><small>ПОСЫЛОК</small></div>
-                    <div style="background:#000; padding:10px; border-radius:10px;"><span id="c-sum" style="color:var(--green)">0₽</span><br><small>ОПЛАТА</small></div>
+                    <div style="background:#000; padding:10px; border-radius:10px;"><span id="c-all" style="font-size:18px;">0</span><br><small>ПОСЫЛОК</small></div>
+                    <div style="background:#000; padding:10px; border-radius:10px;"><span id="c-sum" style="color:var(--green); font-size:18px;">0₽</span><br><small>ОПЛАТА</small></div>
                 </div>
             </div>
             <div class="card" style="font-size:12px;">
@@ -48,16 +49,8 @@
         </div>
 
         <div id="p-news" class="page hidden">
-            <h3>Уведомления</h3>
+            <h3 style="margin-left:5px;">Уведомления</h3>
             <div id="news-list"></div>
-        </div>
-
-        <div id="p-chat" class="page hidden">
-            <h3>Связь</h3>
-            <div class="card" style="text-align:center;">
-                <a href="https://t.me/твой_ник" class="btn btn-red" style="display:block; text-decoration:none;">Поддержка</a>
-                <a href="https://t.me/твой_чат" class="btn" style="display:block; text-decoration:none; background:#222; color:#fff;">Чат клиентов</a>
-            </div>
         </div>
 
         <div id="p-admin" class="page hidden">
@@ -69,12 +62,12 @@
                     <option value="ПРИБЫЛ В ЯКУТСК">🏠 ПРИБЫЛ В ЯКУТСК</option>
                     <option value="ГОТОВ К ВЫДАЧЕ">🏁 ГОТОВ К ВЫДАЧЕ</option>
                 </select>
-                <button class="btn btn-red" onclick="sendToBot('update_parcel')">Добавить</button>
+                <button class="btn btn-red" onclick="sendToBot('update_parcel')">Обновить статус</button>
             </div>
             <div class="card">
                 <textarea id="msg_t" placeholder="Текст новости"></textarea>
-                <button class="btn" style="background:var(--green); color:#fff" onclick="sendToBot('broadcast')">Отправить всем</button>
-                <button class="btn" style="background:#331111; color:var(--red)" onclick="sendToBot('clear_news')">Очистить новости</button>
+                <button class="btn" style="background:var(--green); color:#fff" onclick="sendToBot('broadcast')">Разослать всем</button>
+                <button class="btn" style="background:#222; color:var(--red); font-size:10px;" onclick="sendToBot('clear_news')">Удалить все новости</button>
             </div>
         </div>
     </div>
@@ -82,7 +75,6 @@
     <div class="nav">
         <div class="nav-btn active" onclick="showP('profile', this)">Профиль</div>
         <div class="nav-btn" onclick="showP('news', this)">Новости</div>
-        <div class="nav-btn" onclick="showP('chat', this)">Чаты</div>
         <div id="adm-btn" class="nav-btn hidden" onclick="showP('admin', this)">Админ</div>
     </div>
 
@@ -94,42 +86,42 @@
         const name = urlParams.get('name');
         const code = urlParams.get('code');
         const role = urlParams.get('role');
-        const adr = urlParams.get('adr') || "Не указан";
-        const rek = urlParams.get('rek') || "Не указаны";
 
-        if (!name || name === "None") {
+        if (!name || name === "None" || name === "") {
             document.getElementById('auth-screen').classList.remove('hidden');
             document.getElementById('main-content').classList.add('hidden');
         } else {
             document.getElementById('u-name').innerText = name;
             document.getElementById('u-code').innerText = "ID: " + code;
-            document.getElementById('inf-adr').innerText = adr;
-            document.getElementById('inf-rek').innerText = rek;
+            document.getElementById('inf-adr').innerText = urlParams.get('adr') || "Не указан";
+            document.getElementById('inf-rek').innerText = urlParams.get('rek') || "Не указаны";
             if (role === 'Admin') document.getElementById('adm-btn').classList.remove('hidden');
             
-            // Рендер посылок
+            // Посылки
             const pData = urlParams.get('p');
             const pList = document.getElementById('parcel-list');
             let total = 0, count = 0;
-            if(pData) {
+            if(pData && pData !== "") {
                 pData.split(';').forEach(item => {
                     const [w, s] = item.split('|');
-                    count++;
-                    let price = (s.includes("ЯКУТСК") || s.includes("ГОТОВ")) ? Math.round(w * 570) : 0;
-                    total += price;
-                    pList.innerHTML += `<div class="parcel-card"><b>${s}</b><br>Вес: ${w} кг | ${price}₽</div>`;
+                    if(w && s) {
+                        count++;
+                        let price = (s.includes("ЯКУТСК") || s.includes("ГОТОВ")) ? Math.round(parseFloat(w) * 570) : 0;
+                        total += price;
+                        pList.innerHTML += `<div class="parcel"><b>${s}</b><br>Вес: ${w} кг | Сумма: ${price}₽</div>`;
+                    }
                 });
             }
             document.getElementById('c-all').innerText = count;
             document.getElementById('c-sum').innerText = total + "₽";
 
-            // Рендер новостей
+            // Новости
             const nData = urlParams.get('news');
             const nList = document.getElementById('news-list');
-            if(nData) {
+            if(nData && nData !== "") {
                 nData.split(';').forEach(n => {
                     const [t, p] = n.split('|');
-                    nList.innerHTML += `<div class="card">${p ? `<img src="${p}" style="width:100%; border-radius:10px;">` : ""}<p>${t}</p></div>`;
+                    if(t) nList.innerHTML += `<div class="card">${p ? `<img src="${p}">` : ""}<p>${t}</p></div>`;
                 });
             }
         }
@@ -146,6 +138,7 @@
             if(action === 'register') {
                 data.n = document.getElementById('reg_n').value;
                 data.c = document.getElementById('reg_c').value;
+                if(!data.n || !data.c) return alert("Заполни поля!");
             } else if(action === 'update_parcel') {
                 data.c = document.getElementById('adm_c').value;
                 data.w = document.getElementById('adm_w').value;
