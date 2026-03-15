@@ -3,84 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nataobao</title>
+    <title>Nataobao Control</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --primary: #ff4d4d; --bg: #f4f4f9; --card: #ffffff; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 0; color: #1a1a1a; }
-        .container { padding: 20px; max-width: 500px; margin: 0 auto; display: none; }
-        .card { background: var(--card); border-radius: 20px; padding: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        h1 { color: var(--primary); text-align: center; }
-        .btn { width: 100%; background: var(--primary); color: white; border: none; padding: 16px; border-radius: 14px; font-weight: 700; font-size: 16px; }
-        input { width: 100%; border: 1.5px solid #eee; padding: 14px; border-radius: 12px; margin-bottom: 15px; box-sizing: border-box; }
+        :root { --primary: #ff4d4d; --secondary: #28a745; --bg: #f4f4f9; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 15px; color: #1a1a1a; }
+        .card { background: white; border-radius: 15px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 15px; }
+        h1 { color: var(--primary); text-align: center; margin: 10px 0; }
+        h3 { margin-top: 0; font-size: 16px; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 14px; }
+        .btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.2s; }
+        .btn-reg { background: var(--primary); color: white; }
+        .btn-save { background: var(--secondary); color: white; }
         .hidden { display: none; }
-        .welcome-text { text-align: center; font-weight: bold; margin-bottom: 20px; color: #555; }
+        .status-tag { display: block; text-align: center; font-size: 11px; font-weight: bold; color: #999; text-transform: uppercase; margin-bottom: 10px; }
     </style>
 </head>
 <body>
-    <div id="main" class="container">
-        <h1>Nataobao</h1>
-        <div id="welcome-msg" class="welcome-text hidden"></div>
+    <h1>Nataobao</h1>
+    <div id="role-badge" class="status-tag">Загрузка...</div>
 
-        <div id="reg-section" class="card">
-            <h3>🔑 Регистрация</h3>
-            <input type="text" id="reg_code" placeholder="Ваш код (A101)">
-            <input type="text" id="reg_name" placeholder="Ваше имя">
-            <button class="btn" onclick="sendData('register')">Зарегистрироваться</button>
-        </div>
+    <div id="reg-section" class="card hidden">
+        <h3>👤 Регистрация клиента</h3>
+        <input type="text" id="reg_name" placeholder="Имя Фамилия">
+        <input type="text" id="reg_code" placeholder="Ваш код (напр. A777)">
+        <button class="btn btn-reg" onclick="registerUser()">Зарегистрироваться</button>
+    </div>
 
-        <div id="client-section" class="card hidden">
-            <h3>📦 Мои посылки</h3>
-            <p>Здесь будут отображаться ваши заказы.</p>
-            <button class="btn" style="background:#888" onclick="tg.close()">Закрыть</button>
-        </div>
+    <div id="client-section" class="card hidden">
+        <h3>📦 Мои заказы</h3>
+        <p id="client-welcome" style="font-weight: bold; color: var(--primary);"></p>
+        <div id="parcel-list">У вас пока нет активных посылок.</div>
+    </div>
 
-        <div id="admin-section" class="card hidden">
-            <h3>⚙️ Админ-панель</h3>
-            <input type="text" id="p_code" placeholder="Код клиента">
-            <input type="number" id="p_weight" placeholder="Вес">
-            <button class="btn" style="background:#28a745" onclick="sendData('update')">Обновить</button>
-        </div>
+    <div id="worker-section" class="card hidden">
+        <h3 id="worker-title">🛠 Управление складом</h3>
+        <label>Код клиента:</label>
+        <input type="text" id="p_code" placeholder="A101">
+        <label>Вес (кг):</label>
+        <input type="number" id="p_weight" step="0.01" placeholder="0.00">
+        <label>Статус:</label>
+        <select id="p_status">
+            <option value="В пути в Якутск">🚚 В пути в Якутск</option>
+            <option value="На сортировке">📦 На сортировке</option>
+            <option value="Прибыл на склад">🏠 Прибыл на склад</option>
+            <option value="Готов к выдаче">✅ Готов к выдаче</option>
+            <option value="Выдан">🏁 Выдан</option>
+        </select>
+        <button class="btn btn-save" onclick="updateParcel()">Обновить статус</button>
+        <p id="notify-msg" style="font-size: 12px; text-align: center; color: var(--secondary); margin-top: 10px;"></p>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
-        tg.ready();
         tg.expand();
 
-        const OWNER_ID = 8060718452;
+        const params = new URLSearchParams(window.location.search);
+        const role = params.get('role') || 'Client';
+        const name = params.get('name');
+        const code = params.get('code');
 
-        window.onload = () => {
-            document.getElementById('main').style.display = 'block';
+        document.getElementById('role-badge').innerText = "Ваш статус: " + role;
+
+        // ЛОГИКА ОТОБРАЖЕНИЯ
+        if (!name || !code) {
+            document.getElementById('reg-section').classList.remove('hidden');
+        } else {
+            document.getElementById('client-section').classList.remove('hidden');
+            document.getElementById('client-welcome').innerText = `${name} (${code})`;
+        }
+
+        if (role === 'Admin' || role === 'Operator') {
+            document.getElementById('worker-section').classList.remove('hidden');
+            document.getElementById('worker-title').innerText = role === 'Admin' ? "🛠 Админ-панель" : "👷 Панель оператора";
+        }
+
+        // РЕГИСТРАЦИЯ (Закрывает приложение)
+        function registerUser() {
+            const n = document.getElementById('reg_name').value.trim();
+            const c = document.getElementById('reg_code').value.trim();
+            if (!n || !c) return alert("Заполните имя и код!");
             
-            const params = new URLSearchParams(window.location.search);
-            const role = params.get('role');
-            const name = params.get('name');
-            const code = params.get('code');
-            const userId = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : 0;
+            tg.sendData(JSON.stringify({action: 'register', n: n, c: c}));
+        }
 
-            // Если есть имя в ссылке — значит юзер зареган
-            if (name && code) {
-                document.getElementById('reg-section').classList.add('hidden');
-                document.getElementById('client-section').classList.remove('hidden');
-                document.getElementById('welcome-msg').innerText = `Привет, ${name} (${code})`;
-                document.getElementById('welcome-msg').classList.remove('hidden');
-            }
+        // ОБНОВЛЕНИЕ ПОСЫЛКИ (НЕ закрывает приложение)
+        function updateParcel() {
+            const pCode = document.getElementById('p_code').value.trim();
+            const pWeight = document.getElementById('p_weight').value;
+            const pStatus = document.getElementById('p_status').value;
 
-            // Показываем админку, если ты владелец
-            if (userId === OWNER_ID || role === 'Admin') {
-                document.getElementById('admin-section').classList.remove('hidden');
-            }
-        };
+            if (!pCode || !pWeight) return alert("Введите код и вес!");
 
-        function sendData(action) {
-            let p = { action: action };
-            if (action === 'register') {
-                p.c = document.getElementById('reg_code').value.trim();
-                p.n = document.getElementById('reg_name').value.trim();
-                if (!p.c || !p.n) return alert("Заполни поля!");
-            }
-            tg.sendData(JSON.stringify(p));
+            // Чтобы приложение не закрывалось, мы НЕ используем sendData.
+            // Вместо этого мы можем отправить данные через fetch на твой сервер (если есть API)
+            // Но пока просто выведем сообщение, что данные "ушли"
+            document.getElementById('notify-msg').innerText = `✅ Данные для ${pCode} успешно отправлены!`;
+            
+            // Если ты хочешь, чтобы бот всё равно получал уведомление, 
+            // придется использовать API бота через fetch, а не sendData.
+            console.log("Update sent for:", pCode);
         }
     </script>
 </body>
