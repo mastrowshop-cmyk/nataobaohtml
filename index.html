@@ -6,7 +6,7 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        :root { --accent: #007AFF; --red: #FF3B30; --bg: #010101; --card: rgba(28,28,30,0.7); --border: rgba(255,255,255,0.1); --green: #32D74B; }
+        :root { --accent: #007AFF; --bg: #010101; --card: rgba(28,28,30,0.7); --border: rgba(255,255,255,0.1); --green: #32D74B; --red: #FF3B30; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: white; margin: 0; padding: 15px; padding-bottom: 100px; }
         .hidden { display: none !important; }
         .card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 18px; margin-bottom: 12px; backdrop-filter: blur(15px); }
@@ -21,7 +21,7 @@
         .nav { position: fixed; bottom: 20px; left: 15px; right: 15px; background: rgba(25,25,27,0.9); backdrop-filter: blur(25px); border: 1px solid var(--border); border-radius: 25px; display: flex; padding: 6px; z-index: 1000; }
         .nav-item { flex: 1; text-align: center; padding: 12px; font-size: 11px; font-weight: 700; color: #8E8E93; border-radius: 20px; }
         .nav-item.active { color: white; background: rgba(255,255,255,0.1); }
-        .user-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+        .user-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); align-items: center; }
     </style>
 </head>
 <body>
@@ -29,13 +29,16 @@
     <div id="scr-auth" class="hidden">
         <div style="text-align:center; margin: 60px 0 30px;"><h2>NATAOBAO</h2></div>
         <div class="card">
-            <input type="text" id="r-n" placeholder="Имя">
-            <input type="text" id="r-c" placeholder="Код (A105)">
+            <input type="text" id="r-n" placeholder="Ваше Имя">
+            <input type="text" id="r-c" placeholder="Код (например A105)">
             <button class="btn" onclick="send({a:'reg', n:v('r-n'), c:v('r-c')})">ЗАРЕГИСТРИРОВАТЬСЯ</button>
         </div>
     </div>
 
-    <div id="scr-wait" class="hidden" style="text-align:center; margin-top:150px"><h2>⏳ ПРОВЕРКА...</h2></div>
+    <div id="scr-wait" class="hidden" style="text-align:center; margin-top:150px">
+        <h2 style="color:var(--accent)">⏳ ДОСТУП ОЖИДАЕТСЯ</h2>
+        <p style="opacity:0.5; font-size: 14px; padding: 0 20px;">Админ должен одобрить ваш аккаунт.</p>
+    </div>
 
     <div id="scr-main" class="hidden">
         <div id="pg-profile" class="page">
@@ -47,29 +50,42 @@
         </div>
 
         <div id="pg-info" class="page hidden">
-            <h3>📍 СКЛАД КИТАЙ</h3><div class="card" id="view-adr"></div>
-            <h3>💳 РЕКВИЗИТЫ</h3><div class="card" id="view-rek"></div>
+            <h3>📢 УВЕДОМЛЕНИЕ</h3>
+            <div class="card" id="view-notif" style="color:var(--accent); font-weight: 700;"></div>
+            <h3>📍 СКЛАД КИТАЙ</h3>
+            <div class="card" id="view-adr" style="font-size: 14px;"></div>
+            <h3>💳 РЕКВИЗИТЫ</h3>
+            <div class="card" id="view-rek" style="font-size: 14px;"></div>
         </div>
 
         <div id="pg-admin" class="page hidden">
             <div class="card" style="background: var(--accent); color: white; border:none;">
-                <div style="font-size: 10px; font-weight: 800; opacity: 0.7; text-transform: uppercase;">Всего посылок в базе</div>
+                <div style="font-size: 10px; font-weight: 800; opacity: 0.7; text-transform: uppercase;">Всего посылок в системе</div>
                 <div style="font-size: 38px; font-weight: 900;" id="total-count">0</div>
             </div>
-            <h3>📦 ПРИЕМКА</h3>
+
+            <h3>📦 ПРИЕМКА СКЛАД</h3>
             <div class="card">
-                <div style="display:flex; gap:8px; margin-bottom:10px"><input type="text" id="a-t" placeholder="Трек"><button class="btn" style="width:60px; background:var(--border); color:white" onclick="scan('a-t')">📷</button></div>
+                <div style="display:flex; gap:8px; margin-bottom:10px">
+                    <input type="text" id="a-t" placeholder="Трек-номер">
+                    <button class="btn" style="width:60px; background:var(--border); color:white" onclick="scan('a-t')">📷</button>
+                </div>
                 <input type="text" id="a-c" placeholder="Код клиента">
-                <button class="btn btn-adm" onclick="send({a:'add_cargo', t:v('a-t'), c:v('a-c')})">ПРИНЯТЬ</button>
+                <button class="btn btn-adm" onclick="send({a:'add_cargo', t:v('a-t'), c:v('a-c')})">ПРИНЯТЬ ГРУЗ</button>
             </div>
-            <h3>⚖️ ВЗВЕШИВАНИЕ</h3>
+
+            <h3>⚖️ ВЗВЕШИВАНИЕ ЯКУТСК</h3>
             <div class="card">
-                <div style="display:flex; gap:8px; margin-bottom:10px"><input type="text" id="w-t" placeholder="Трек/Код"><button class="btn" style="width:60px; background:var(--border); color:white" onclick="scan('w-t')">📷</button></div>
+                <div style="display:flex; gap:8px; margin-bottom:10px">
+                    <input type="text" id="w-t" placeholder="Трек / Код клиента">
+                    <button class="btn" style="width:60px; background:var(--border); color:white" onclick="scan('w-t')">📷</button>
+                </div>
                 <input type="number" id="w-v" placeholder="Вес (кг)">
                 <div id="live-p" style="color:var(--green); font-weight:900; margin-bottom:10px">0 ₽</div>
-                <button class="btn" style="background:var(--green); color:black" onclick="send({a:'weight_cargo', t:v('w-t'), w:v('w-v')})">СОХРАНИТЬ</button>
+                <button class="btn" style="background:var(--green); color:black" onclick="send({a:'weight_cargo', t:v('w-t'), w:v('w-v')})">СОХРАНИТЬ ВЕС</button>
             </div>
-            <h3>👥 КЛИЕНТЫ</h3>
+
+            <h3>👥 ОДОБРЕНИЕ КЛИЕНТОВ</h3>
             <div class="card" id="all-users-list"></div>
         </div>
     </div>
@@ -87,6 +103,8 @@
         const n = url.get('n'), r = url.get('r'), code = url.get('c'), app = url.get('app'), price = url.get('pr') || 570;
 
         tg.expand();
+        tg.setHeaderColor('#010101');
+
         document.getElementById('w-v').addEventListener('input', (e) => {
             document.getElementById('live-p').innerText = `${Math.round(e.target.value * price)} ₽`;
         });
@@ -110,6 +128,7 @@
             document.getElementById('u-c-top').innerText = code;
             document.getElementById('view-adr').innerText = url.get('adr') || '—';
             document.getElementById('view-rek').innerText = url.get('rek') || '—';
+            document.getElementById('view-notif').innerText = url.get('nt') || 'Нет новостей';
 
             if (r === 'Admin') {
                 document.getElementById('nav-adm').classList.remove('hidden');
@@ -119,24 +138,34 @@
                     let uH = "";
                     uData.split(';').forEach(u => {
                         const [un, uc, ua, ut] = u.split('|');
-                        uH += `<div class="user-row"><span>${ua==='1'?'✅':'⏳'} ${un} (<b>${uc}</b>)</span>${ua==='0' ? `<span style="color:var(--accent)" onclick="send({a:'app_user', tid:${ut}})">ОДОБРИТЬ</span>` : ''}</div>`;
+                        uH += `<div class="user-row">
+                            <span>${ua==='1'?'✅':'⏳'} <b>${un}</b> (${uc})</span>
+                            ${ua==='0' ? `<button class="btn" style="width:auto; padding:5px 10px; font-size:10px; background:var(--accent); color:white" onclick="send({a:'app_user', tid:${ut}})">ОДОБРИТЬ</button>` : ''}
+                        </div>`;
                     });
-                    document.getElementById('all-users-list').innerHTML = uH || "Пусто";
+                    document.getElementById('all-users-list').innerHTML = uH || "Все клиенты одобрены";
                 }
             }
 
             const parcels = url.get('p');
             if(parcels) {
+                const pList = document.getElementById('p-list');
                 parcels.split(';').forEach(p => {
                     const [w, s, d, cc, id, tr] = p.split('|');
                     if(r === 'Admin' || cc === code) {
                         const ready = s.includes('ГОТОВ');
-                        document.getElementById('p-list').innerHTML += `
+                        pList.innerHTML += `
                             <div class="card">
-                                <div style="display:flex; justify-content:space-between; margin-bottom:10px"><div class="status ${ready?'s-ready':'s-way'}">${s}</div><div style="opacity:0.3; font-size:10px">ID: ${cc}</div></div>
+                                <div style="display:flex; justify-content:space-between; margin-bottom:10px">
+                                    <div class="status ${ready?'s-ready':'s-way'}">${s}</div>
+                                    <div style="opacity:0.3; font-size:10px">ID: ${cc}</div>
+                                </div>
                                 <div style="display:flex; justify-content:space-between; align-items:flex-end">
                                     <div><div style="font-size:26px; font-weight:900">${w} кг</div><div style="color:var(--green); font-weight:700">${Math.round(w*price)} ₽</div></div>
-                                    <div style="text-align:right; font-size:10px; opacity:0.4">${tr}<br>${d}<br>${r==='Admin' ? `<span style="color:var(--red)" onclick="send({a:'del', id:${id}})">УДАЛИТЬ</span>` : ''}</div>
+                                    <div style="text-align:right; font-size:10px; opacity:0.4">
+                                        ТРЕК: ${tr}<br>${d}<br>
+                                        ${r==='Admin' ? `<span style="color:var(--red); font-weight:bold" onclick="send({a:'del', id:${id}})">УДАЛИТЬ</span>` : ''}
+                                    </div>
                                 </div>
                             </div>`;
                     }
@@ -150,6 +179,7 @@
             document.getElementById('pg-' + p).classList.remove('hidden');
             el.classList.add('active');
         }
+        function v(id) { return document.getElementById(id).value; }
         function send(data) { tg.sendData(JSON.stringify(data)); tg.close(); }
     </script>
 </body>
