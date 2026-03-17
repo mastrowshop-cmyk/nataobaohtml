@@ -5,36 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap');
         :root { --bg: #000; --card: #121214; --acc: #fff; --red: #ff3b30; --blue: #007aff; --green: #34c759; --gray: #8e8e93; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: #fff; margin: 0; padding: 15px; padding-bottom: 100px; -webkit-user-select: none; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: #fff; margin: 0; padding: 15px; padding-bottom: 100px; }
         .hidden { display: none !important; }
-        .card { background: var(--card); border-radius: 24px; padding: 20px; margin-bottom: 15px; border: 1px solid #2c2c2e; transition: all 0.2s ease; }
-        .card:active { transform: scale(0.98); opacity: 0.9; }
-        h2 { font-weight: 900; letter-spacing: -1px; margin: 0 0 15px 0; font-size: 24px; }
-        input { width: 100%; background: #1c1c1e; border: 1px solid #2c2c2e; color: #fff; padding: 15px; border-radius: 16px; margin-bottom: 10px; box-sizing: border-box; font-size: 16px; outline: none; }
-        .btn { width: 100%; padding: 18px; border-radius: 20px; border: none; font-weight: 700; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; }
+        .card { background: var(--card); border-radius: 24px; padding: 20px; margin-bottom: 15px; border: 1px solid #2c2c2e; }
+        input, select { width: 100%; background: #1c1c1e; border: 1px solid #2c2c2e; color: #fff; padding: 15px; border-radius: 16px; margin-bottom: 10px; box-sizing: border-box; font-size: 16px; }
+        .btn { width: 100%; padding: 18px; border-radius: 20px; border: none; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .btn-main { background: var(--acc); color: #000; }
         .btn-pay { background: var(--green); color: #000; }
-        .btn-adm { background: var(--red); color: #fff; }
         .nav { position: fixed; bottom: 20px; left: 15px; right: 15px; background: rgba(28,28,30,0.8); backdrop-filter: blur(20px); border-radius: 28px; display: flex; padding: 8px; z-index: 1000; border: 1px solid rgba(255,255,255,0.1); }
         .nav-item { flex: 1; text-align: center; padding: 12px; border-radius: 22px; font-size: 12px; font-weight: 600; color: var(--gray); }
         .nav-item.active { background: #2c2c2e; color: #fff; }
         .badge { font-size: 10px; font-weight: 800; padding: 5px 12px; border-radius: 10px; text-transform: uppercase; margin-bottom: 10px; display: inline-block; }
         .b-way { background: rgba(0, 122, 255, 0.15); color: var(--blue); }
         .b-ready { background: rgba(52, 199, 89, 0.15); color: var(--green); }
-        #modal-pay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
+        #reader { width: 100%; border-radius: 20px; overflow: hidden; margin-bottom: 10px; }
     </style>
 </head>
 <body>
     <script>
         const tg = window.Telegram.WebApp;
         const v = (id) => document.getElementById(id).value;
-        
-        // Эта функция отправляет данные, но НЕ закрывает приложение сразу
-        const sendAction = (data) => { tg.sendData(JSON.stringify(data)); };
-        
+        const send = (data) => { tg.sendData(JSON.stringify(data)); };
+
         function showPage(p, el) {
             document.querySelectorAll('.page').forEach(x => x.classList.add('hidden'));
             document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
@@ -42,95 +38,121 @@
             el.classList.add('active');
         }
 
-        function openPay(id, sum) {
+        // Логика сканера
+        let scanner;
+        function startScan(targetId) {
+            document.getElementById('scanner-modal').classList.remove('hidden');
+            scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
+            scanner.render((text) => {
+                document.getElementById(targetId).value = text;
+                stopScan();
+            });
+        }
+        function stopScan() {
+            if(scanner) scanner.clear();
+            document.getElementById('scanner-modal').classList.add('hidden');
+        }
+
+        function openPay(id, sum, track) {
+            const ylim = parseInt(url.get('ylim') || 5000);
             document.getElementById('modal-pay').style.display = 'flex';
             document.getElementById('pay-sum').innerText = sum + ' ₽';
             document.getElementById('pay-id').value = id;
+            document.getElementById('pay-track').value = track;
+            
+            const btnYoo = document.getElementById('btn-yoo');
+            if (sum <= ylim) {
+                btnYoo.classList.remove('hidden');
+                btnYoo.onclick = () => tg.openLink(url.get('yoo'));
+            } else {
+                btnYoo.classList.add('hidden');
+            }
         }
     </script>
 
+    <div id="scanner-modal" class="hidden" style="position:fixed; top:0; z-index:3000; width:100%; height:100%; background:#000; padding:20px; box-sizing:border-box;">
+        <div id="reader"></div>
+        <button class="btn btn-main" onclick="stopScan()">ОТМЕНА</button>
+    </div>
+
     <div id="pg-profile" class="page">
-        <h2 id="u-n">Загрузка...</h2>
+        <h2 id="u-n">...</h2>
         <div id="qr-wrap" style="background:#fff; padding:15px; border-radius:20px; display:inline-block; margin-bottom:20px;"></div>
-        <div class="card" id="p-nt-box" style="border-left: 4px solid var(--green);">Новых уведомлений нет</div>
-        <h3>Ваши посылки</h3>
+        <div class="card" style="font-size: 13px;">
+            <b>Ваша ссылка для друзей:</b><br>
+            <code id="ref-link" style="color:var(--blue)"></code>
+        </div>
         <div id="p-list"></div>
     </div>
 
-    <div id="pg-info" class="page hidden">
-        <h2>Инфо</h2>
-        <div class="card" id="all-nt-box" style="color: var(--blue);">Объявлений нет</div>
-        <div class="card" id="adr-box" style="white-space: pre-wrap;"></div>
-    </div>
-
     <div id="pg-admin" class="page hidden">
-        <h2>Управление</h2>
+        <h2>Админ-панель</h2>
         <div class="card">
-            <h3>Приемка товара</h3>
+            <h3>Приемка (Сканер)</h3>
             <input type="text" id="a-tr" placeholder="Трек-номер">
+            <button class="btn btn-main" onclick="startScan('a-tr')" style="background:var(--blue); color:#fff; margin-bottom:10px;">📷 СКАН ТРЕКА</button>
             <input type="text" id="a-cc" placeholder="Код клиента">
-            <button class="btn btn-main" onclick="sendAction({a:'add', t:v('a-tr'), c:v('a-cc')})">ДОБАВИТЬ В ПУТЬ</button>
+            <button class="btn btn-main" onclick="send({a:'add', t:v('a-tr'), c:v('a-cc')})">ДОБАВИТЬ В ПУТЬ</button>
         </div>
+        
         <div class="card">
-            <h3>Взвешивание</h3>
-            <input type="text" id="w-tr" placeholder="Трек-номер">
-            <input type="number" id="w-kg" placeholder="Вес (кг)">
-            <button class="btn btn-pay" onclick="sendAction({a:'weight', t:v('w-tr'), w:v('w-kg')})">ОБНОВИТЬ ВЕС</button>
+            <h3>Настройка системы</h3>
+            <input type="text" id="s-rek" placeholder="Реквизиты СБП">
+            <input type="number" id="s-pr" placeholder="Цена за кг">
+            <input type="number" id="s-ylim" placeholder="Лимит ЮMoney">
+            <button class="btn btn-pay" onclick="send({a:'set_sys', r:v('s-rek'), p:v('s-pr'), y:v('s-ylim')})">СОХРАНИТЬ НАСТРОЙКИ</button>
         </div>
     </div>
 
-    <div id="modal-pay">
+    <div id="modal-pay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:2000; display:none; align-items:center; justify-content:center; backdrop-filter:blur(10px);">
         <div class="card" style="width: 90%;">
             <h2 style="text-align:center">Оплата</h2>
-            <p style="text-align:center; color:var(--gray)">Сумма: <b id="pay-sum" style="color:#fff"></b></p>
-            <div id="rek-info" style="background:#000; padding:15px; border-radius:15px; font-size:14px; margin:15px 0; border: 1px solid #222;"></div>
+            <p style="text-align:center">Сумма: <b id="pay-sum"></b></p>
+            <div id="rek-info" style="background:#1c1c1e; padding:15px; border-radius:15px; font-size:14px; margin-bottom:15px;"></div>
+            
+            <button id="btn-yoo" class="btn btn-main" style="background:#8b3ffd; color:#fff; margin-bottom:10px;">ОПЛАТИТЬ ЮMONEY</button>
+            
             <input type="hidden" id="pay-id">
-            <button class="btn btn-pay" onclick="document.getElementById('modal-pay').style.display='none'; alert('Теперь ПРИКРЕПИ ФОТО ЧЕКА в чат с ботом!')">Я ОПЛАТИЛ</button>
-            <button class="btn" style="margin-top:10px; background:none; color:var(--gray)" onclick="document.getElementById('modal-pay').style.display='none'">ОТМЕНА</button>
+            <input type="hidden" id="pay-track">
+            <button class="btn btn-pay" onclick="document.getElementById('modal-pay').style.display='none'; alert('Прикрепи фото чека!')">Я ОПЛАТИЛ СБП</button>
+            <button class="btn" style="background:none; color:var(--gray)" onclick="document.getElementById('modal-pay').style.display='none'">ОТМЕНА</button>
         </div>
     </div>
 
-    <div id="navbar" class="nav">
+    <div class="nav">
         <div class="nav-item active" onclick="showPage('profile', this)">Грузы</div>
-        <div class="nav-item" onclick="showPage('info', this)">Инфо</div>
         <div id="nav-adm" class="nav-item hidden" onclick="showPage('admin', this)">Админ</div>
     </div>
 
     <script>
         const url = new URLSearchParams(location.search);
-        const name = url.get('n'), code = url.get('c'), role = url.get('r'), pr = url.get('pr') || 570;
+        document.getElementById('u-n').innerText = url.get('n') + ' (' + url.get('c') + ')';
+        document.getElementById('ref-link').innerText = "https://t.me/" + url.get('bn') + "?start=" + url.get('tid');
+        document.getElementById('rek-info').innerText = url.get('rek');
+        
+        new QRCode(document.getElementById("qr-wrap"), { text: url.get('c'), width: 140, height: 140 });
 
-        if(name && name !== 'None') {
-            document.getElementById('u-n').innerText = name + ' (' + code + ')';
-            new QRCode(document.getElementById("qr-wrap"), { text: code, width: 140, height: 140, colorDark: "#000", colorLight: "#fff" });
-            document.getElementById('adr-box').innerText = url.get('adr') + '\n\n' + url.get('rek');
-            document.getElementById('rek-info').innerText = url.get('rek');
-            document.getElementById('all-nt-box').innerText = url.get('nt') || 'Новостей нет';
-            if(url.get('p_nt')) document.getElementById('p-nt-box').innerText = url.get('p_nt');
-            if(role === 'Admin') document.getElementById('nav-adm').classList.remove('hidden');
+        if(url.get('r') === 'Admin') document.getElementById('nav-adm').classList.remove('hidden');
 
-            const pStr = url.get('p');
-            if(pStr) {
-                let h = "";
-                pStr.split(';').forEach(p => {
-                    const [w, s, d, cc, id, tr, paid] = p.split('|');
-                    if(cc === code || role === 'Admin') {
-                        const isPaid = paid === '1';
-                        h += `<div class="card">
-                            <div class="badge ${s.includes('ГОТОВ')?'b-ready':'b-way'}">${s}</div>
-                            <div style="display:flex; justify-content:space-between; align-items:center">
-                                <div><small style="color:var(--gray)">${tr}</small><br><b style="font-size:20px">${w} кг</b></div>
-                                <div style="text-align:right">
-                                    <span style="color:${isPaid?'var(--green)':'var(--red)'}">${isPaid?'ОПЛАЧЕНО':'ЖДЕТ ОПЛАТЫ'}</span><br>
-                                    ${(!isPaid && w > 0) ? `<button class="btn-pay" style="padding:8px 15px; border-radius:12px; border:none; margin-top:5px; font-size:12px;" onclick="openPay('${id}', '${w*pr}')">ОПЛАТИТЬ</button>` : ''}
-                                    ${role === 'Admin' ? `<div style="color:var(--red); margin-top:10px; font-size:10px" onclick="sendAction({a:'del', id:'${id}'})">УДАЛИТЬ</div>` : ''}
-                                </div>
+        const pStr = url.get('p');
+        if(pStr) {
+            let h = "";
+            pStr.split(';').forEach(p => {
+                const [w, s, d, cc, id, tr, paid] = p.split('|');
+                if(cc === url.get('c') || url.get('r') === 'Admin') {
+                    h += `<div class="card">
+                        <div class="badge ${s.includes('ГОТОВ')?'b-ready':'b-way'}">${s} (${d})</div>
+                        <div style="display:flex; justify-content:space-between">
+                            <div><small>${tr}</small><br><b>${w} кг</b></div>
+                            <div style="text-align:right">
+                                <span>${paid==='1'?'✅':'⌛'}</span><br>
+                                ${paid==='0' && w > 0 ? `<button onclick="openPay('${id}','${w*url.get('pr')}','${tr}')" style="background:var(--green); border:none; border-radius:8px; padding:5px 10px;">ОПЛАТИТЬ</button>` : ''}
                             </div>
-                        </div>`;
-                    }
-                });
-                document.getElementById('p-list').innerHTML = h;
-            }
+                        </div>
+                    </div>`;
+                }
+            });
+            document.getElementById('p-list').innerHTML = h;
         }
     </script>
 </body>
