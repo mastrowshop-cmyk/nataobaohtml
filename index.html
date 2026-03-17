@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         :root { --bg: #0d0d0f; --card: #1c1c1e; --text: #8e8e93; --white: #ffffff; --red: #ff3b30; --blue: #007aff; --green: #34c759; }
@@ -11,40 +12,35 @@
         .hidden { display: none !important; }
         .card { background: var(--card); border-radius: 16px; padding: 16px; margin-bottom: 12px; border: 1px solid #2c2c2e; }
         h2 { color: white; margin: 0 0 5px 0; font-weight: 900; }
-        h3 { font-size: 10px; text-transform: uppercase; margin: 20px 0 10px 5px; letter-spacing: 1px; }
-        input { width: 100%; background: #000; border: 1px solid #3a3a3c; color: white; padding: 12px; border-radius: 10px; margin-bottom: 8px; box-sizing: border-box; font-size: 16px; }
+        h3 { font-size: 10px; text-transform: uppercase; margin: 20px 0 10px 5px; color: var(--text); letter-spacing: 1px; }
         .btn { width: 100%; padding: 14px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn-main { background: var(--white); color: black; }
+        .btn-pay { background: var(--green); color: black; }
         .btn-adm { background: var(--red); color: white; }
-        .btn-sec { background: var(--blue); color: white; }
         .nav { position: fixed; bottom: 20px; left: 15px; right: 15px; background: #1c1c1e; border-radius: 20px; display: flex; padding: 10px; z-index: 1000; border: 1px solid #2c2c2e; }
-        .nav-item { flex: 1; text-align: center; font-size: 10px; font-weight: 700; color: #48484a; text-transform: uppercase; }
+        .nav-item { flex: 1; text-align: center; font-size: 10px; font-weight: 700; color: #48484a; }
         .nav-item.active { color: white; }
         .status { font-size: 10px; font-weight: 900; padding: 4px 8px; border-radius: 6px; display: inline-block; margin-bottom: 10px; }
         .s-ready { background: rgba(52,199,89,0.15); color: var(--green); }
         .s-way { background: rgba(0,122,255,0.15); color: var(--blue); }
         .ref-box { background: rgba(0,122,255,0.1); border: 1px dashed var(--blue); padding: 10px; border-radius: 10px; color: var(--blue); font-size: 11px; word-break: break-all; }
+        .nt-box { border: 1px solid var(--green); color: var(--green); font-size: 13px; font-weight: 600; }
+        .all-nt-box { border: 1px solid var(--blue); color: var(--blue); font-size: 13px; font-weight: 600; }
+        #qr-wrap { background: white; padding: 10px; border-radius: 12px; display: inline-block; margin-bottom: 15px; }
     </style>
 </head>
 <body>
     <script>
         const v = (id) => document.getElementById(id).value;
         const send = (data) => { window.Telegram.WebApp.sendData(JSON.stringify(data)); window.Telegram.WebApp.close(); };
-        function scan(id) {
-            window.Telegram.WebApp.showScanQrPopup({ text: "Сканируйте штрих-код или QR" }, (t) => {
-                document.getElementById(id).value = t;
-                window.Telegram.WebApp.closeScanQrPopup();
-                return true;
-            });
-        }
+        function scan(id) { window.Telegram.WebApp.showScanQrPopup({ text: "Сканируйте штрих-код или QR" }, (t) => { document.getElementById(id).value = t; window.Telegram.WebApp.closeScanQrPopup(); return true; }); }
     </script>
 
     <div id="scr-auth" class="hidden">
         <h1 style="text-align:center; color:white; margin-top:40px">NATAOBAO</h1>
         <div class="card">
-            <input type="text" id="r-n" placeholder="Ваше Имя">
-            <input type="text" id="r-c" placeholder="Ваш код (A105)">
-            <button class="btn btn-main" onclick="send({a:'reg', n:v('r-n'), c:v('r-c')})">ЗАРЕГИСТРИРОВАТЬСЯ</button>
+            <input type="text" id="r-n" placeholder="Ваше Имя" style="width:100%; padding:10px; margin-bottom:10px; border-radius:8px; border:1px solid #333; background:#000; color:#fff;">
+            <input type="text" id="r-c" placeholder="Код (A105)" style="width:100%; padding:10px; margin-bottom:10px; border-radius:8px; border:1px solid #333; background:#000; color:#fff;">
+            <button class="btn" style="background:white; color:black" onclick="send({a:'reg', n:v('r-n'), c:v('r-c')})">ВОЙТИ</button>
         </div>
     </div>
 
@@ -52,34 +48,41 @@
         <div id="pg-profile" class="page">
             <h2 id="u-n">...</h2>
             <div id="u-c-top" style="color:var(--red); font-weight:700; margin-bottom:15px"></div>
+            
+            <div id="qr-wrap"></div> <h3>Личное сообщение</h3>
+            <div class="card nt-box" id="p-nt-display">Новых сообщений нет</div>
+
             <h3>Ваша реферальная ссылка</h3>
-            <div class="card"><div class="ref-box" id="ref-link">Загрузка...</div></div>
+            <div class="card"><div class="ref-box" id="ref-link">...</div></div>
+            
             <h3>Ваши грузы</h3>
             <div id="p-list"></div>
         </div>
 
+        <div id="pg-info" class="page hidden">
+            <h3>Общее объявление</h3>
+            <div class="card all-nt-box" id="all-nt-display">...</div>
+            <h3>Реквизиты и Склад</h3>
+            <div class="card" id="view-adr" style="white-space: pre-wrap; color: white;"></div>
+        </div>
+
         <div id="pg-admin" class="page hidden">
-            <h3>Приемка</h3>
+            <h3>📢 УВЕДОМЛЕНИЯ</h3>
             <div class="card">
-                <div style="display:flex; gap:5px"><input type="text" id="a-t" placeholder="Трек"><button class="btn" style="width:50px; background:#3a3a3c" onclick="scan('a-t')">📷</button></div>
-                <input type="text" id="a-c" placeholder="Код клиента">
-                <input type="number" id="a-q" value="1">
-                <button class="btn btn-adm" onclick="send({a:'add', t:v('a-t'), c:v('a-c'), q:v('a-q')})">ПРИНЯТЬ</button>
+                <input type="text" id="adm-all-nt" placeholder="Для всех">
+                <button class="btn btn-adm" onclick="send({a:'set_all_nt', v:v('adm-all-nt')})">ОТПРАВИТЬ ВСЕМ</button>
+                <hr style="opacity:0.1; margin:10px 0">
+                <input type="text" id="adm-p-c" placeholder="Код клиента">
+                <input type="text" id="adm-p-v" placeholder="Текст">
+                <button class="btn" style="background:var(--blue); color:white" onclick="send({a:'set_p_nt', c:v('adm-p-c'), v:v('adm-p-v')})">ЛИЧНО КЛИЕНТУ</button>
             </div>
-            <h3>Вес</h3>
-            <div class="card">
-                <div style="display:flex; gap:5px"><input type="text" id="w-t" placeholder="Трек"><button class="btn" style="width:50px; background:#3a3a3c" onclick="scan('w-t')">📷</button></div>
-                <input type="number" id="w-v" placeholder="Вес кг">
-                <button class="btn btn-sec" onclick="send({a:'weight', t:v('w-t'), w:v('w-v')})">УСТАНОВИТЬ ВЕС</button>
-            </div>
-            <h3>Excel</h3>
-            <div class="card"><button class="btn btn-main" onclick="send({a:'exp_ex'})">📥 СКАЧАТЬ ОТЧЕТ</button></div>
             <div id="user-reqs"></div>
         </div>
     </div>
 
     <div id="navbar" class="nav hidden">
         <div class="nav-item active" onclick="show('profile', this)">Грузы</div>
+        <div class="nav-item" onclick="show('info', this)">Инфо</div>
         <div id="nav-adm" class="nav-item hidden" onclick="show('admin', this)">Админ</div>
     </div>
 
@@ -95,36 +98,39 @@
             document.getElementById('scr-main').classList.remove('hidden');
             document.getElementById('navbar').classList.remove('hidden');
             document.getElementById('u-n').innerText = n;
-            document.getElementById('u-c-top').innerText = 'Личный код: ' + c;
+            document.getElementById('u-c-top').innerText = 'Код: ' + c;
             document.getElementById('ref-link').innerText = url.get('ref');
-            if (r === 'Admin') {
-                document.getElementById('nav-adm').classList.remove('hidden');
-                const uL = url.get('u_list');
-                if(uL) {
-                    let h = "<h3>Заявки</h3>";
-                    uL.split(';').forEach(u => {
-                        const [un, uc, ua, ut] = u.split('|');
-                        if(ua === '0') h += `<div class="card">${un} (${uc})<button class="btn btn-adm" onclick="send({a:'app', tid:${ut}})">ОДОБРИТЬ</button></div>`;
-                    });
-                    document.getElementById('user-reqs').innerHTML = h;
-                }
-            }
-            const parcels = url.get('p');
-            if(parcels) {
-                let pH = "";
-                parcels.split(';').forEach(p => {
-                    const [w, s, d, cc, id, tr] = p.split('|');
-                    if(r === 'Admin' || cc === c) {
-                        pH += `<div class="card">
+            
+            // Генерация QR
+            new QRCode(document.getElementById("qr-wrap"), { text: c, width: 120, height: 120 });
+
+            // Уведомления
+            if(url.get('p_nt') && url.get('p_nt') !== 'None') document.getElementById('p-nt-display').innerText = url.get('p_nt');
+            document.getElementById('all-nt-display').innerText = url.get('nt') || 'Нет новостей';
+            document.getElementById('view-adr').innerText = (url.get('adr') || '') + '\n' + (url.get('rek') || '');
+
+            if (r === 'Admin') document.getElementById('nav-adm').classList.remove('hidden');
+
+            const pData = url.get('p');
+            if(pData) {
+                let h = "";
+                pData.split(';').forEach(p => {
+                    const [w, s, d, cc, id, tr, paid] = p.split('|');
+                    if(cc === c || r === 'Admin') {
+                        const ok = paid === '1';
+                        h += `<div class="card">
                             <div class="status ${s.includes('ГОТОВ')?'s-ready':'s-way'}">${s}</div>
                             <div style="display:flex; justify-content:space-between">
                                 <div><b style="color:white; font-size:20px">${w} кг</b><br><small>${Math.round(w*pr)} ₽</small></div>
-                                <div style="text-align:right; font-size:10px">${tr}<br>${d}</div>
+                                <div style="text-align:right">
+                                    <span style="font-size:10px; color:${ok?'var(--green)':'var(--red)'}">${ok?'✅ ОПЛАЧЕНО':'❌ ЖДЕТ ОПЛАТЫ'}</span><br>
+                                    ${(!ok && w > 0)?`<button class="btn btn-pay" style="padding:5px 10px; margin-top:5px" onclick="tg.close()">ОПЛАТИТЬ</button>`:''}
+                                </div>
                             </div>
                         </div>`;
                     }
                 });
-                document.getElementById('p-list').innerHTML = pH;
+                document.getElementById('p-list').innerHTML = h;
             }
         }
         function show(p, el) {
@@ -132,6 +138,9 @@
             document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
             document.getElementById('pg-' + p).classList.remove('hidden');
             el.classList.add('active');
+        }
+        function openPay() {
+            alert("Для оплаты:\n1. Скопируйте реквизиты в разделе 'Инфо'\n2. Переведите сумму\n3. Отправьте фото чека в чат бота с текстом 'Оплата'");
         }
     </script>
 </body>
