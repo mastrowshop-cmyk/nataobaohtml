@@ -6,141 +6,246 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        :root { --bg: #0d0d0f; --card: #1c1c1e; --text: #8e8e93; --white: #ffffff; --red: #ff3b30; --blue: #007aff; --green: #34c759; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; padding-bottom: 100px; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap');
+        
+        :root {
+            --bg: #000000;
+            --card: #121214;
+            --accent: #ffffff;
+            --red: #ff3b30;
+            --blue: #007aff;
+            --green: #34c759;
+            --gray: #8e8e93;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: #fff;
+            margin: 0;
+            padding: 15px;
+            padding-bottom: 100px;
+            -webkit-user-select: none;
+        }
+
         .hidden { display: none !important; }
-        .card { background: var(--card); border-radius: 16px; padding: 16px; margin-bottom: 12px; border: 1px solid #2c2c2e; }
-        h2 { color: white; margin: 0 0 5px 0; font-weight: 900; }
-        h3 { font-size: 10px; text-transform: uppercase; margin: 20px 0 10px 5px; color: var(--text); letter-spacing: 1px; }
-        .btn { width: 100%; padding: 14px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn-pay { background: var(--green); color: black; }
-        .btn-adm { background: var(--red); color: white; }
-        .nav { position: fixed; bottom: 20px; left: 15px; right: 15px; background: #1c1c1e; border-radius: 20px; display: flex; padding: 10px; z-index: 1000; border: 1px solid #2c2c2e; }
-        .nav-item { flex: 1; text-align: center; font-size: 10px; font-weight: 700; color: #48484a; }
-        .nav-item.active { color: white; }
-        .status { font-size: 10px; font-weight: 900; padding: 4px 8px; border-radius: 6px; display: inline-block; margin-bottom: 10px; }
-        .s-ready { background: rgba(52,199,89,0.15); color: var(--green); }
-        .s-way { background: rgba(0,122,255,0.15); color: var(--blue); }
-        .ref-box { background: rgba(0,122,255,0.1); border: 1px dashed var(--blue); padding: 10px; border-radius: 10px; color: var(--blue); font-size: 11px; word-break: break-all; }
-        .nt-box { border: 1px solid var(--green); color: var(--green); font-size: 13px; font-weight: 600; }
-        .all-nt-box { border: 1px solid var(--blue); color: var(--blue); font-size: 13px; font-weight: 600; }
-        #qr-wrap { background: white; padding: 10px; border-radius: 12px; display: inline-block; margin-bottom: 15px; }
+
+        /* Сочный "Жидкий" дизайн */
+        .card {
+            background: var(--card);
+            border-radius: 24px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 1px solid #2c2c2e;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card:active { transform: scale(0.97); opacity: 0.9; }
+
+        h2 { font-weight: 900; letter-spacing: -1px; margin: 0 0 15px 0; font-size: 24px; }
+        h3 { font-size: 12px; text-transform: uppercase; color: var(--gray); letter-spacing: 1px; margin: 20px 0 10px 5px; }
+
+        input {
+            width: 100%;
+            background: #1c1c1e;
+            border: 1px solid #2c2c2e;
+            color: #fff;
+            padding: 15px;
+            border-radius: 16px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+            font-size: 16px;
+            outline: none;
+        }
+
+        /* Жидкие кнопки */
+        .btn {
+            width: 100%;
+            padding: 18px;
+            border-radius: 20px;
+            border: none;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-main { background: var(--accent); color: #000; }
+        .btn-pay { background: var(--green); color: #000; box-shadow: 0 8px 20px rgba(52, 199, 89, 0.2); }
+        .btn-adm { background: var(--red); color: #fff; }
+        .btn-sec { background: var(--blue); color: #fff; }
+
+        /* Навигация */
+        .nav {
+            position: fixed;
+            bottom: 20px;
+            left: 15px;
+            right: 15px;
+            background: rgba(28, 28, 30, 0.8);
+            backdrop-filter: blur(20px);
+            border-radius: 28px;
+            display: flex;
+            padding: 8px;
+            z-index: 1000;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .nav-item {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            border-radius: 22px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--gray);
+            transition: 0.3s;
+        }
+
+        .nav-item.active { background: #2c2c2e; color: #fff; }
+
+        /* Статусы */
+        .badge {
+            font-size: 10px;
+            font-weight: 800;
+            padding: 5px 12px;
+            border-radius: 10px;
+            text-transform: uppercase;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+        .b-way { background: rgba(0, 122, 255, 0.15); color: var(--blue); }
+        .b-ready { background: rgba(52, 199, 89, 0.15); color: var(--green); }
+
+        /* Оплата */
+        #modal-pay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 2000;
+            display: none; align-items: center; justify-content: center;
+            backdrop-filter: blur(10px);
+        }
     </style>
 </head>
 <body>
     <script>
-        const v = (id) => document.getElementById(id).value;
-        const send = (data) => { window.Telegram.WebApp.sendData(JSON.stringify(data)); window.Telegram.WebApp.close(); };
-        function scan(id) { window.Telegram.WebApp.showScanQrPopup({ text: "Сканируйте штрих-код или QR" }, (t) => { document.getElementById(id).value = t; window.Telegram.WebApp.closeScanQrPopup(); return true; }); }
-    </script>
-
-    <div id="scr-auth" class="hidden">
-        <h1 style="text-align:center; color:white; margin-top:40px">NATAOBAO</h1>
-        <div class="card">
-            <input type="text" id="r-n" placeholder="Ваше Имя" style="width:100%; padding:10px; margin-bottom:10px; border-radius:8px; border:1px solid #333; background:#000; color:#fff;">
-            <input type="text" id="r-c" placeholder="Код (A105)" style="width:100%; padding:10px; margin-bottom:10px; border-radius:8px; border:1px solid #333; background:#000; color:#fff;">
-            <button class="btn" style="background:white; color:black" onclick="send({a:'reg', n:v('r-n'), c:v('r-c')})">ВОЙТИ</button>
-        </div>
-    </div>
-
-    <div id="scr-main" class="hidden">
-        <div id="pg-profile" class="page">
-            <h2 id="u-n">...</h2>
-            <div id="u-c-top" style="color:var(--red); font-weight:700; margin-bottom:15px"></div>
-            
-            <div id="qr-wrap"></div> <h3>Личное сообщение</h3>
-            <div class="card nt-box" id="p-nt-display">Новых сообщений нет</div>
-
-            <h3>Ваша реферальная ссылка</h3>
-            <div class="card"><div class="ref-box" id="ref-link">...</div></div>
-            
-            <h3>Ваши грузы</h3>
-            <div id="p-list"></div>
-        </div>
-
-        <div id="pg-info" class="page hidden">
-            <h3>Общее объявление</h3>
-            <div class="card all-nt-box" id="all-nt-display">...</div>
-            <h3>Реквизиты и Склад</h3>
-            <div class="card" id="view-adr" style="white-space: pre-wrap; color: white;"></div>
-        </div>
-
-        <div id="pg-admin" class="page hidden">
-            <h3>📢 УВЕДОМЛЕНИЯ</h3>
-            <div class="card">
-                <input type="text" id="adm-all-nt" placeholder="Для всех">
-                <button class="btn btn-adm" onclick="send({a:'set_all_nt', v:v('adm-all-nt')})">ОТПРАВИТЬ ВСЕМ</button>
-                <hr style="opacity:0.1; margin:10px 0">
-                <input type="text" id="adm-p-c" placeholder="Код клиента">
-                <input type="text" id="adm-p-v" placeholder="Текст">
-                <button class="btn" style="background:var(--blue); color:white" onclick="send({a:'set_p_nt', c:v('adm-p-c'), v:v('adm-p-v')})">ЛИЧНО КЛИЕНТУ</button>
-            </div>
-            <div id="user-reqs"></div>
-        </div>
-    </div>
-
-    <div id="navbar" class="nav hidden">
-        <div class="nav-item active" onclick="show('profile', this)">Грузы</div>
-        <div class="nav-item" onclick="show('info', this)">Инфо</div>
-        <div id="nav-adm" class="nav-item hidden" onclick="show('admin', this)">Админ</div>
-    </div>
-
-    <script>
         const tg = window.Telegram.WebApp;
-        const url = new URLSearchParams(location.search);
-        tg.expand();
-        const n = url.get('n'), r = url.get('r'), c = url.get('c'), pr = url.get('pr') || 570;
-
-        if (!n || n === 'None') {
-            document.getElementById('scr-auth').classList.remove('hidden');
-        } else {
-            document.getElementById('scr-main').classList.remove('hidden');
-            document.getElementById('navbar').classList.remove('hidden');
-            document.getElementById('u-n').innerText = n;
-            document.getElementById('u-c-top').innerText = 'Код: ' + c;
-            document.getElementById('ref-link').innerText = url.get('ref');
-            
-            // Генерация QR
-            new QRCode(document.getElementById("qr-wrap"), { text: c, width: 120, height: 120 });
-
-            // Уведомления
-            if(url.get('p_nt') && url.get('p_nt') !== 'None') document.getElementById('p-nt-display').innerText = url.get('p_nt');
-            document.getElementById('all-nt-display').innerText = url.get('nt') || 'Нет новостей';
-            document.getElementById('view-adr').innerText = (url.get('adr') || '') + '\n' + (url.get('rek') || '');
-
-            if (r === 'Admin') document.getElementById('nav-adm').classList.remove('hidden');
-
-            const pData = url.get('p');
-            if(pData) {
-                let h = "";
-                pData.split(';').forEach(p => {
-                    const [w, s, d, cc, id, tr, paid] = p.split('|');
-                    if(cc === c || r === 'Admin') {
-                        const ok = paid === '1';
-                        h += `<div class="card">
-                            <div class="status ${s.includes('ГОТОВ')?'s-ready':'s-way'}">${s}</div>
-                            <div style="display:flex; justify-content:space-between">
-                                <div><b style="color:white; font-size:20px">${w} кг</b><br><small>${Math.round(w*pr)} ₽</small></div>
-                                <div style="text-align:right">
-                                    <span style="font-size:10px; color:${ok?'var(--green)':'var(--red)'}">${ok?'✅ ОПЛАЧЕНО':'❌ ЖДЕТ ОПЛАТЫ'}</span><br>
-                                    ${(!ok && w > 0)?`<button class="btn btn-pay" style="padding:5px 10px; margin-top:5px" onclick="tg.close()">ОПЛАТИТЬ</button>`:''}
-                                </div>
-                            </div>
-                        </div>`;
-                    }
-                });
-                document.getElementById('p-list').innerHTML = h;
-            }
-        }
-        function show(p, el) {
+        const v = (id) => document.getElementById(id).value;
+        const send = (data) => { tg.sendData(JSON.stringify(data)); tg.close(); };
+        
+        function showPage(p, el) {
             document.querySelectorAll('.page').forEach(x => x.classList.add('hidden'));
             document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
             document.getElementById('pg-' + p).classList.remove('hidden');
             el.classList.add('active');
         }
-        function openPay() {
-            alert("Для оплаты:\n1. Скопируйте реквизиты в разделе 'Инфо'\n2. Переведите сумму\n3. Отправьте фото чека в чат бота с текстом 'Оплата'");
+
+        function openPay(id, sum) {
+            document.getElementById('modal-pay').style.display = 'flex';
+            document.getElementById('pay-sum').innerText = sum + ' ₽';
+            document.getElementById('pay-id').value = id;
+        }
+    </script>
+
+    <div id="scr-main">
+        <div id="pg-profile" class="page">
+            <h2 id="u-n">...</h2>
+            <div id="qr-wrap" style="background:#fff; padding:15px; border-radius:20px; display:inline-block; margin-bottom:20px;"></div>
+            
+            <div class="card" id="p-nt-box" style="border-left: 4px solid var(--green);">Сообщений нет</div>
+            
+            <h3>Ваши посылки</h3>
+            <div id="p-list"></div>
+        </div>
+
+        <div id="pg-info" class="page hidden">
+            <h2>Инфо</h2>
+            <div class="card" id="all-nt-box" style="color: var(--blue);">Загрузка...</div>
+            <div class="card" id="adr-box" style="white-space: pre-wrap;"></div>
+        </div>
+
+        <div id="pg-admin" class="page hidden">
+            <h2>Управление</h2>
+            
+            <div class="card">
+                <h3>Приемка товара</h3>
+                <input type="text" id="a-tr" placeholder="Трек-номер">
+                <input type="text" id="a-cc" placeholder="Код клиента">
+                <button class="btn btn-main" onclick="send({a:'add', t:v('a-tr'), c:v('a-cc')})">ДОБАВИТЬ В ПУТЬ</button>
+            </div>
+
+            <div class="card">
+                <h3>Взвешивание</h3>
+                <input type="text" id="w-tr" placeholder="Трек-номер">
+                <input type="number" id="w-kg" placeholder="Вес (кг)">
+                <button class="btn btn-pay" onclick="send({a:'weight', t:v('w-tr'), w:v('w-kg')})">ОБНОВИТЬ ВЕС</button>
+            </div>
+
+            <div class="card">
+                <h3>Уведомления</h3>
+                <input type="text" id="nt-all" placeholder="Общее">
+                <button class="btn btn-sec" onclick="send({a:'set_all_nt', v:v('nt-all')})">ВСЕМ</button>
+            </div>
+
+            <div id="adm-users"></div>
+        </div>
+    </div>
+
+    <div id="modal-pay">
+        <div class="card" style="width: 90%;">
+            <h2 style="text-align:center">Оплата</h2>
+            <p style="text-align:center; color:var(--gray)">Сумма к оплате: <b id="pay-sum" style="color:#fff"></b></p>
+            <div id="rek-info" style="background:#000; padding:15px; border-radius:15px; font-size:14px; margin:15px 0;"></div>
+            <input type="hidden" id="pay-id">
+            <button class="btn btn-pay" onclick="send({a:'pay_notify', id:v('pay-id')})">Я ОПЛАТИЛ (ОТПРАВИТЬ ЧЕК)</button>
+            <button class="btn" style="margin-top:10px; background:none; color:var(--gray)" onclick="document.getElementById('modal-pay').style.display='none'">ОТМЕНА</button>
+        </div>
+    </div>
+
+    <div id="navbar" class="nav">
+        <div class="nav-item active" onclick="showPage('profile', this)">Грузы</div>
+        <div class="nav-item" onclick="showPage('info', this)">Инфо</div>
+        <div id="nav-adm" class="nav-item hidden" onclick="showPage('admin', this)">Админ</div>
+    </div>
+
+    <script>
+        const url = new URLSearchParams(location.search);
+        const code = url.get('c'), role = url.get('r'), pr = url.get('pr') || 570;
+
+        document.getElementById('u-n').innerText = url.get('n') + ' (' + code + ')';
+        new QRCode(document.getElementById("qr-wrap"), { text: code, width: 140, height: 140, colorDark: "#000", colorLight: "#fff" });
+        
+        if(url.get('p_nt')) document.getElementById('p-nt-box').innerText = url.get('p_nt');
+        document.getElementById('all-nt-box').innerText = url.get('nt') || 'Нет новостей';
+        document.getElementById('adr-box').innerText = url.get('adr') + '\n\n' + url.get('rek');
+        document.getElementById('rek-info').innerText = url.get('rek');
+
+        if(role === 'Admin') document.getElementById('nav-adm').classList.remove('hidden');
+
+        // Список посылок
+        const pStr = url.get('p');
+        if(pStr) {
+            let h = "";
+            pStr.split(';').forEach(p => {
+                const [w, s, d, cc, id, tr, paid] = p.split('|');
+                if(cc === code || role === 'Admin') {
+                    const isPaid = paid === '1';
+                    h += `<div class="card">
+                        <div class="badge ${s.includes('ГОТОВ')?'b-ready':'b-way'}">${s}</div>
+                        <div style="display:flex; justify-content:space-between; align-items:center">
+                            <div><small style="color:var(--gray)">${tr}</small><br><b style="font-size:20px">${w} кг</b></div>
+                            <div style="text-align:right">
+                                <span style="color:${isPaid? 'var(--green)':'var(--red)'}">${isPaid?'ОПЛАЧЕНО':'ЖДЕТ ОПЛАТЫ'}</span><br>
+                                ${(!isPaid && w > 0) ? `<button class="btn-pay" style="padding:8px 15px; border-radius:12px; border:none; margin-top:5px;" onclick="openPay('${id}', '${w*pr}')">ОПЛАТИТЬ</button>` : ''}
+                                ${role === 'Admin' ? `<div style="color:var(--red); margin-top:10px; font-size:12px" onclick="send({a:'del', id:'${id}'})">УДАЛИТЬ</div>` : ''}
+                            </div>
+                        </div>
+                    </div>`;
+                }
+            });
+            document.getElementById('p-list').innerHTML = h;
         }
     </script>
 </body>
