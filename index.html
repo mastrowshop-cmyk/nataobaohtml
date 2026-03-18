@@ -3,69 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NaTaoBao Terminal</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        :root { --bg: #000; --card: #1c1c1e; --blue: #007aff; --green: #34c759; --gray: #8e8e93; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: #fff; margin: 0; padding: 15px; padding-bottom: 100px; }
+        :root { --bg: #000; --card: #1c1c1e; --blue: #007aff; --green: #34c759; --gray: #8e8e93; --red: #ff3b30; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: #fff; margin: 0; padding: 15px; padding-bottom: 100px; -webkit-user-select: none; }
         .card { background: var(--card); border-radius: 18px; padding: 16px; margin-bottom: 12px; border: 1px solid #2c2c2e; }
         input { width: 100%; background: #2c2c2e; border: 1px solid #3a3a3c; color: #fff; padding: 14px; border-radius: 12px; margin-bottom: 8px; box-sizing: border-box; font-size: 16px; outline: none; }
-        .btn { width: 100%; padding: 15px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; font-size: 14px; margin-top: 5px; }
+        input:focus { border-color: var(--blue); }
+        .btn { width: 100%; padding: 15px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; font-size: 14px; margin-top: 5px; transition: opacity 0.2s; }
+        .btn:active { opacity: 0.7; }
         .btn-blue { background: var(--blue); color: #fff; }
         .btn-green { background: var(--green); color: #000; }
-        .btn-scan { background: rgba(0,122,255,0.15); color: var(--blue); border: 1px dashed var(--blue); margin-bottom: 10px; }
-        .nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(28,28,30,0.9); backdrop-filter: blur(10px); display: flex; padding: 12px; border-top: 1px solid #2c2c2e; z-index: 100; }
-        .nav-item { flex: 1; text-align: center; color: var(--gray); font-size: 11px; font-weight: 700; }
+        .btn-outline { background: transparent; border: 1px solid var(--blue); color: var(--blue); margin-top: 10px; }
+        .nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(28,28,30,0.95); backdrop-filter: blur(15px); display: flex; padding: 12px; border-top: 1px solid #2c2c2e; z-index: 100; }
+        .nav-item { flex: 1; text-align: center; color: var(--gray); font-size: 11px; font-weight: 700; cursor: pointer; }
         .nav-item.active { color: #fff; }
-        .tabs { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; }
-        .tab { flex: 1; padding: 10px; text-align: center; background: #2c2c2e; border-radius: 10px; font-size: 11px; white-space: nowrap; }
+        .tabs { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
+        .tab { flex: 1; padding: 10px; text-align: center; background: #2c2c2e; border-radius: 10px; font-size: 11px; white-space: nowrap; font-weight: 700; cursor: pointer; }
         .tab.active { background: var(--blue); color: #fff; }
         .hidden { display: none !important; }
+        .badge { display: inline-block; padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; margin-bottom: 8px; text-transform: uppercase; }
+        .badge-way { background: rgba(0,122,255,0.2); color: var(--blue); }
+        .badge-ready { background: rgba(52,199,89,0.2); color: var(--green); }
         #scanner-ui { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; display: flex; flex-direction: column; }
+        .ref-box { background: rgba(0,122,255,0.1); border: 1px dashed var(--blue); padding: 12px; border-radius: 12px; font-size: 12px; margin-bottom: 15px; }
     </style>
 </head>
 <body>
     <div id="pg-reg" class="page hidden">
-        <h1 style="font-weight:900;">NaTaoBao</h1>
+        <h1 style="font-weight:900; font-size: 32px; margin-bottom: 10px;">NaTaoBao</h1>
+        <p style="color: var(--gray); margin-bottom: 20px;">Добро пожаловать. Введите данные для начала работы.</p>
         <div class="card">
             <input type="text" id="reg-n" placeholder="Имя Фамилия">
-            <input type="text" id="reg-c" placeholder="Ваш Код (напр. NT01)">
-            <button class="btn btn-green" onclick="reg()">СОЗДАТЬ АККАУНТ</button>
+            <input type="text" id="reg-c" placeholder="Желаемый код (напр. NT77)">
+            <button class="btn btn-green" onclick="reg()">СОЗДАТЬ ПРОФИЛЬ</button>
         </div>
     </div>
 
     <div id="pg-user" class="page hidden">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-            <h2 id="u-name" style="margin:0">...</h2>
-            <b id="u-code" style="color:var(--blue); font-size:20px;">...</b>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <div>
+                <div style="color: var(--gray); font-size: 12px;">Клиент</div>
+                <h2 id="u-name" style="margin:0; font-size: 24px;">...</h2>
+            </div>
+            <b id="u-code" style="color:var(--blue); font-size:24px; background: rgba(0,122,255,0.1); padding: 5px 12px; border-radius: 10px;">...</b>
         </div>
-        <div id="qr-wrap" style="background:#fff; padding:10px; border-radius:15px; display:inline-block; margin-bottom:15px;"></div>
+
+        <div style="text-align: center; margin-bottom: 20px;">
+            <div id="qr-wrap" style="background:#fff; padding:15px; border-radius:20px; display:inline-block; box-shadow: 0 10px 30px rgba(0,0,0,0.5);"></div>
+            <p style="color: var(--gray); font-size: 12px; margin-top: 10px;">Покажите этот QR на приемке</p>
+        </div>
         
-        <div class="card" style="border: 1px dashed #444;">
-            <div style="font-size:11px; color:var(--gray);">Твоя реферальная ссылка:</div>
-            <div id="ref-link" style="font-size:12px; color:var(--blue); margin-top:5px; word-break:break-all;"></div>
+        <div class="ref-box">
+            <div style="font-weight: 700; margin-bottom: 4px;">Ваша реферальная ссылка:</div>
+            <div id="ref-link" style="color: var(--blue); word-break: break-all;">Загрузка...</div>
         </div>
+
+        <h3 style="margin-bottom: 10px;">Мои посылки</h3>
         <div id="parcel-list"></div>
     </div>
 
     <div id="pg-admin" class="page hidden">
+        <h2 style="margin-bottom: 15px;">Панель управления</h2>
         <div class="tabs">
-            <div class="tab active" onclick="setTab('adm-p')">📦 ГРУЗЫ</div>
-            <div class="tab" onclick="setTab('adm-u')">👥 КЛИЕНТЫ</div>
-            <div class="tab" onclick="setTab('adm-s')">⚙️ НАСТРОЙКИ</div>
+            <div id="t-p" class="tab active" onclick="setTab('adm-p')">📦 ГРУЗЫ</div>
+            <div id="t-u" class="tab" onclick="setTab('adm-u')">👥 КЛИЕНТЫ</div>
+            <div id="t-s" class="tab" onclick="setTab('adm-s')">⚙️ НАСТРОЙКИ</div>
         </div>
 
         <div id="adm-p" class="tab-content">
             <div class="card">
-                <button class="btn btn-scan" onclick="startScan()">📷 СКАНЕР</button>
+                <button class="btn btn-outline" onclick="startScan()" style="margin-bottom: 15px; width: 100%;">📷 ОТКРЫТЬ СКАНЕР</button>
                 <input type="text" id="adm-t" placeholder="Трек-номер">
                 <input type="text" id="adm-c" placeholder="Код клиента">
-                <input type="number" id="adm-w" placeholder="Вес (кг)">
+                <input type="number" step="0.01" id="adm-w" placeholder="Вес (кг)">
                 <div style="display:flex; gap:10px;">
-                    <button class="btn btn-green" onclick="send({a:'add', t:v('adm-t'), c:v('adm-c')})" style="flex:1;">В ПУТЬ</button>
-                    <button class="btn btn-blue" onclick="send({a:'weight', t:v('adm-t'), w:v('adm-w')})" style="flex:1;">ГОТОВ</button>
+                    <button class="btn btn-green" onclick="doAction('add')" style="flex:1;">В ПУТЬ</button>
+                    <button class="btn btn-blue" onclick="doAction('weight')" style="flex:1;">ГОТОВ</button>
                 </div>
             </div>
             <div id="adm-parcel-list"></div>
@@ -77,102 +95,154 @@
 
         <div id="adm-s" class="tab-content hidden">
             <div class="card">
-                <input type="text" id="s-rek" placeholder="Реквизиты (СБП)">
-                <input type="number" id="s-pr" placeholder="Цена за кг (юани)">
-                <button class="btn btn-blue" onclick="send({a:'set_sys', r:v('s-rek'), p:v('s-pr')})">СОХРАНИТЬ</button>
+                <label style="font-size: 12px; color: var(--gray);">Реквизиты для оплаты</label>
+                <input type="text" id="s-rek" placeholder="Номер карты / СБП">
+                <label style="font-size: 12px; color: var(--gray); margin-top: 10px; display: block;">Цена за 1 кг (₽/¥)</label>
+                <input type="number" id="s-pr" placeholder="570">
+                <button class="btn btn-blue" onclick="doAction('set_sys')">СОХРАНИТЬ НАСТРОЙКИ</button>
             </div>
         </div>
     </div>
 
     <div id="scanner-ui" class="hidden">
-        <div id="reader" style="flex:1;"></div>
-        <button class="btn btn-blue" onclick="stopScan()">ЗАКРЫТЬ</button>
+        <div id="reader" style="width: 100%; flex: 1;"></div>
+        <div style="padding: 20px; background: #000;">
+            <button class="btn btn-blue" onclick="stopScan()">ОТМЕНА</button>
+        </div>
     </div>
 
     <div class="nav" id="main-nav">
-        <div class="nav-item active" onclick="show('user')">ГРУЗЫ</div>
-        <div id="adm-nav" class="nav-item hidden" onclick="show('admin')">АДМИН</div>
+        <div id="nav-u" class="nav-item active" onclick="showPage('user')">🏠 ГЛАВНАЯ</div>
+        <div id="adm-nav" class="nav-item hidden" onclick="showPage('admin')">🛠 АДМИН</div>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
+        tg.expand();
         const params = new URLSearchParams(location.search);
+        
         const v = (id) => document.getElementById(id).value;
-        const send = (d) => { tg.sendData(JSON.stringify(d)); tg.close(); };
+        const send = (data) => { 
+            tg.sendData(JSON.stringify(data)); 
+            tg.close(); 
+        };
 
-        function show(p) {
+        function showPage(p) {
             document.querySelectorAll('.page').forEach(x => x.classList.add('hidden'));
             document.getElementById('pg-'+p).classList.remove('hidden');
+            document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
+            document.getElementById(p === 'user' ? 'nav-u' : 'adm-nav').classList.add('active');
         }
 
         function setTab(t) {
             document.querySelectorAll('.tab-content').forEach(x => x.classList.add('hidden'));
             document.getElementById(t).classList.remove('hidden');
             document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
-            event.target.classList.add('active');
+            if(t === 'adm-p') document.getElementById('t-p').classList.add('active');
+            if(t === 'adm-u') document.getElementById('t-u').classList.add('active');
+            if(t === 'adm-s') document.getElementById('t-s').classList.add('active');
         }
 
-        function reg() { send({a:'reg', n:v('reg-n'), c:v('reg-c').toUpperCase()}); }
+        function reg() {
+            const n = v('reg-n'), c = v('reg-c').toUpperCase();
+            if(!n || !c) return alert("Заполните все поля!");
+            send({a:'reg', n:n, c:c});
+        }
 
-        // Инициализация
-        const uName = params.get('n'), uCode = params.get('c'), uRole = params.get('r');
-        if(!uName || uName === 'None') { show('reg'); } 
-        else {
-            show('user');
-            document.getElementById('u-name').innerText = uName;
-            document.getElementById('u-code').innerText = uCode;
-            document.getElementById('ref-link').innerText = "https://t.me/" + params.get('bn') + "?start=" + params.get('tid');
-            new QRCode(document.getElementById("qr-wrap"), { text: uCode, width: 120, height: 120 });
-            if(uRole === 'Admin') {
-                document.getElementById('adm-nav').classList.remove('hidden');
-                document.getElementById('s-rek').value = params.get('rek') || "";
-                document.getElementById('s-pr').value = params.get('pr') || "";
+        function doAction(type) {
+            if(type === 'add') send({a:'add', t:v('adm-t'), c:v('adm-c')});
+            if(type === 'weight') send({a:'weight', t:v('adm-t'), w:v('adm-w')});
+            if(type === 'set_sys') send({a:'set_sys', r:v('s-rek'), p:v('s-pr')});
+        }
+
+        // РЕНДЕР ДАННЫХ ПРИ ЗАГРУЗКЕ
+        try {
+            const uName = params.get('n'), uCode = params.get('c'), uRole = params.get('r');
+            
+            if(!uName || uName === 'None') {
+                showPage('reg');
+                document.getElementById('main-nav').classList.add('hidden');
+            } else {
+                showPage('user');
+                document.getElementById('u-name').innerText = uName;
+                document.getElementById('u-code').innerText = uCode;
+                document.getElementById('ref-link').innerText = "https://t.me/" + params.get('bn') + "?start=" + params.get('tid');
                 
-                // Рендер клиентов
-                const cStr = params.get('clients');
-                if(cStr) {
-                    let h = "";
-                    cStr.split(';').forEach(c => {
-                        const [tid, n, cd, rf] = c.split('|');
-                        h += `<div class="card"><b>${n} (${cd})</b><br><small>ID: ${tid} | Реф: ${rf||'нет'}</small></div>`;
-                    });
-                    document.getElementById('clients-list').innerHTML = h;
+                new QRCode(document.getElementById("qr-wrap"), { 
+                    text: uCode, 
+                    width: 140, 
+                    height: 140,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff"
+                });
+
+                if(uRole === 'Admin') {
+                    document.getElementById('adm-nav').classList.remove('hidden');
+                    document.getElementById('s-rek').value = params.get('rek') || "";
+                    document.getElementById('s-pr').value = params.get('pr') || "";
+                    
+                    const cStr = params.get('clients');
+                    if(cStr) {
+                        let h = "";
+                        cStr.split(';').forEach(c => {
+                            if(!c) return;
+                            const [tid, n, cd, rf] = c.split('|');
+                            h += `<div class="card" onclick="tg.openTelegramLink('https://t.me/user?id=${tid}')">
+                                <div style="font-weight:700;">${n}</div>
+                                <div style="font-size:12px; color:var(--blue);">${cd}</div>
+                                <div style="font-size:10px; color:var(--gray); margin-top:5px;">ID: ${tid} ${rf?'| Реф от: '+rf:''}</div>
+                            </div>`;
+                        });
+                        document.getElementById('clients-list').innerHTML = h || "Нет клиентов";
+                    }
                 }
             }
-        }
 
-        // Рендер грузов
-        const pStr = params.get('p');
-        if(pStr) {
-            let h = "";
-            pStr.split(';').forEach(p => {
-                const [w, s, d, cc, id, tr, pd] = p.split('|');
-                if(cc === uCode || uRole === 'Admin') {
-                    h += `<div class="card">
-                        <small style="color:var(--blue)">${s}</small>
-                        <div style="font-weight:700; margin:5px 0;">${tr}</div>
-                        <div style="display:flex; justify-content:space-between; font-size:12px;">
-                            <span>${w} кг | ${cc}</span>
-                            <b>${pd === '1' ? '✅ ОПЛАЧЕНО' : '⌛ ОЖИДАЕТ'}</b>
-                        </div>
-                    </div>`;
-                }
-            });
-            document.getElementById('parcel-list').innerHTML = h;
-            if(uRole === 'Admin') document.getElementById('adm-parcel-list').innerHTML = h;
-        }
+            const pStr = params.get('p');
+            if(pStr) {
+                let h = "";
+                pStr.split(';').forEach(p => {
+                    if(!p) return;
+                    const [w, s, d, cc, id, tr, pd] = p.split('|');
+                    if(cc === uCode || uRole === 'Admin') {
+                        const isReady = s.includes('ГОТОВ');
+                        h += `<div class="card">
+                            <span class="badge ${isReady?'badge-ready':'badge-way'}">${s}</span>
+                            <div style="font-weight:900; font-size: 16px; letter-spacing: 0.5px;">${tr}</div>
+                            <div style="display:flex; justify-content:space-between; margin-top:10px; font-size:12px;">
+                                <span style="color:var(--gray)">${d} | ${cc}</span>
+                                <b style="color:${pd==='1'?'var(--green)':'var(--blue)'}">${w}кг | ${pd==='1'?'ОПЛАЧЕНО':'ОЖИДАЕТ'}</b>
+                            </div>
+                        </div>`;
+                    }
+                });
+                const list = h || '<div style="text-align:center; padding:40px; color:var(--gray);">Посылок не найдено</div>';
+                document.getElementById('parcel-list').innerHTML = list;
+                if(uRole === 'Admin') document.getElementById('adm-parcel-list').innerHTML = list;
+            }
+        } catch(e) { console.error(e); }
 
-        // Сканер
+        // СКАНЕР
         let html5QrCode;
-        async function startScan() {
+        function startScan() {
             document.getElementById('scanner-ui').classList.remove('hidden');
             html5QrCode = new Html5Qrcode("reader");
-            html5QrCode.start({ facingMode: "environment" }, { fps: 15, qrbox: 250 }, (txt) => {
+            html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (txt) => {
                 document.getElementById('adm-t').value = txt;
                 stopScan();
-            });
+                tg.HapticFeedback.notificationOccurred('success');
+            }).catch(err => alert("Ошибка камеры: " + err));
         }
-        async function stopScan() { if(html5QrCode) { await html5QrCode.stop(); html5QrCode.clear(); } document.getElementById('scanner-ui').classList.add('hidden'); }
+        function stopScan() {
+            if(html5QrCode) {
+                html5QrCode.stop().then(() => {
+                    html5QrCode.clear();
+                    document.getElementById('scanner-ui').classList.add('hidden');
+                });
+            } else {
+                document.getElementById('scanner-ui').classList.add('hidden');
+            }
+        }
     </script>
 </body>
 </html>
