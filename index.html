@@ -7,79 +7,90 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         :root { --bg: #000; --card: #1c1c1e; --blue: #007aff; --green: #34c759; --gray: #8e8e93; --red: #ff3b30; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); color: #fff; margin: 0; padding: 15px; padding-bottom: 90px; }
-        .card { background: var(--card); border-radius: 15px; padding: 15px; margin-bottom: 12px; border: 1px solid #2c2c2e; }
-        input { width: 100%; background: #2c2c2e; border: 1px solid #3a3a3c; color: #fff; padding: 12px; border-radius: 10px; margin-bottom: 10px; box-sizing: border-box; font-size: 16px; outline: none; }
-        .btn { width: 100%; padding: 15px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; font-size: 14px; margin-top: 5px; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: #fff; margin: 0; padding: 15px; padding-bottom: 100px; -webkit-tap-highlight-color: transparent; }
+        .card { background: var(--card); border-radius: 18px; padding: 16px; margin-bottom: 12px; border: 1px solid #2c2c2e; }
+        input { width: 100%; background: #2c2c2e; border: 1px solid #3a3a3c; color: #fff; padding: 14px; border-radius: 12px; margin-bottom: 8px; box-sizing: border-box; font-size: 16px; outline: none; }
+        .btn { width: 100%; padding: 15px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; font-size: 14px; margin-top: 5px; transition: 0.2s; }
+        .btn:active { transform: scale(0.98); opacity: 0.8; }
         .btn-blue { background: var(--blue); color: #fff; }
         .btn-green { background: var(--green); color: #000; }
-        .btn-red { background: var(--red); color: #fff; }
-        .nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(28,28,30,0.9); backdrop-filter: blur(10px); display: flex; padding: 12px; border-top: 1px solid #2c2c2e; z-index: 1000; }
-        .nav-item { flex: 1; text-align: center; color: var(--gray); font-size: 11px; font-weight: bold; }
+        .nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(28,28,30,0.9); backdrop-filter: blur(15px); display: flex; padding: 12px; border-top: 1px solid #2c2c2e; z-index: 1000; }
+        .nav-item { flex: 1; text-align: center; color: var(--gray); font-size: 11px; font-weight: 700; }
         .nav-item.active { color: #fff; }
         .tabs { display: flex; gap: 8px; margin-bottom: 15px; }
-        .tab { flex: 1; padding: 10px; text-align: center; background: #2c2c2e; border-radius: 10px; font-size: 12px; font-weight: bold; }
-        .tab.active { background: var(--blue); }
+        .tab { flex: 1; padding: 10px; text-align: center; background: #2c2c2e; border-radius: 10px; font-size: 11px; font-weight: 700; }
+        .tab.active { background: var(--blue); color: #fff; }
         .hidden { display: none !important; }
-        .status { font-size: 10px; font-weight: 800; text-transform: uppercase; margin-bottom: 5px; }
-        #reader { width: 100%; border-radius: 15px; overflow: hidden; margin-bottom: 10px; }
+        #reader { width: 100%; border-radius: 15px; overflow: hidden; margin-bottom: 10px; border: 2px solid var(--blue); }
+        .badge { font-size: 10px; padding: 3px 7px; border-radius: 5px; font-weight: 900; text-transform: uppercase; }
     </style>
 </head>
 <body>
     <div id="pg-reg" class="page hidden">
-        <h1>NaTaoBao</h1>
+        <h1 style="font-weight:900; font-size: 28px;">NaTaoBao</h1>
         <div class="card">
             <input type="text" id="reg-n" placeholder="Имя Фамилия">
-            <input type="text" id="reg-c" placeholder="Код (напр. NT01)">
+            <input type="text" id="reg-c" placeholder="Ваш Код (напр. NT01)">
             <button class="btn btn-green" onclick="send({a:'reg', n:v('reg-n'), c:v('reg-c').toUpperCase()})">СОЗДАТЬ АККАУНТ</button>
         </div>
     </div>
 
     <div id="pg-user" class="page hidden">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h2 id="u-name">...</h2>
-            <b id="u-code" style="color:var(--blue); font-size:20px;">...</b>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;">
+            <h2 id="u-name" style="margin:0">...</h2>
+            <b id="u-code" style="color:var(--blue); font-size:22px;">...</b>
         </div>
-        <div id="qr-wrap" style="background:#fff; padding:10px; border-radius:15px; display:inline-block; margin: 15px 0;"></div>
-        <h3>Мои посылки</h3>
+        <div id="qr-wrap" style="background:#fff; padding:12px; border-radius:18px; display:inline-block; margin-bottom: 15px;"></div>
+        <div class="card" style="border: 1px dashed var(--blue); font-size: 11px; color: var(--gray);">
+            Реф. ссылка: <span id="ref-link" style="color:var(--blue)">...</span>
+        </div>
+        <h3 style="margin: 10px 0;">Мои грузы</h3>
         <div id="parcel-list"></div>
     </div>
 
-    <div id="pg-adm" class="page hidden">
+    <div id="pg-admin" class="page hidden">
         <div class="tabs">
-            <div class="tab active" onclick="setTab('a-p')">ГРУЗЫ</div>
-            <div class="tab" onclick="setTab('a-s')">НАСТРОЙКИ</div>
+            <div id="t-p" class="tab active" onclick="setTab('adm-p')">📦 ГРУЗЫ</div>
+            <div id="t-u" class="tab" onclick="setTab('adm-u')">👥 КЛИЕНТЫ</div>
+            <div id="t-s" class="tab" onclick="setTab('adm-s')">⚙️ НАСТРОЙКИ</div>
         </div>
-        <div id="a-p" class="tab-c">
+
+        <div id="adm-p" class="tab-content">
             <div class="card">
                 <div id="reader" class="hidden"></div>
-                <button class="btn btn-blue" id="scan-btn" onclick="startScan()">📷 СКАНЕР</button>
+                <button class="btn btn-blue" id="scan-btn" onclick="startScan()">📷 ОТКРЫТЬ СКАНЕР</button>
                 <input type="text" id="adm-t" placeholder="Трек-номер">
                 <input type="text" id="adm-c" placeholder="Код клиента">
-                <input type="number" id="adm-w" step="0.1" placeholder="Вес (кг)">
+                <input type="number" id="adm-w" step="0.01" placeholder="Вес (кг)">
                 <div style="display:flex; gap:8px;">
                     <button class="btn btn-green" onclick="send({a:'add', t:v('adm-t'), c:v('adm-c')})" style="flex:1">В ПУТЬ</button>
                     <button class="btn btn-blue" onclick="send({a:'weight', t:v('adm-t'), w:v('adm-w')})" style="flex:1">ГОТОВ</button>
                 </div>
             </div>
-            <div id="adm-list"></div>
+            <div id="adm-parcel-list"></div>
         </div>
-        <div id="a-s" class="tab-c hidden">
+
+        <div id="adm-u" class="tab-content hidden">
+            <div id="clients-list"></div>
+        </div>
+
+        <div id="adm-s" class="tab-content hidden">
             <div class="card">
-                <h3>Настройки системы</h3>
-                <label style="font-size:12px; color:var(--gray)">Цена за 1 кг (₽):</label>
+                <h4 style="margin-top:0">Тарифы и Платежи</h4>
+                <label style="font-size:11px; color:var(--gray)">Цена за кг (₽):</label>
                 <input type="number" id="set-pr" placeholder="500">
-                <label style="font-size:12px; color:var(--gray)">Токен ЮKassa:</label>
-                <input type="text" id="set-yk" placeholder="123456:TEST:...">
+                <label style="font-size:11px; color:var(--gray)">ЮKassa Token (BotFather):</label>
+                <input type="text" id="set-yk" placeholder="Токен оплаты">
                 <button class="btn btn-green" onclick="send({a:'save_s', p:v('set-pr'), yk:v('set-yk')})">СОХРАНИТЬ</button>
             </div>
         </div>
     </div>
 
     <div class="nav" id="main-nav">
-        <div class="nav-item active" onclick="show('user')">ГРУЗЫ</div>
-        <div id="adm-btn" class="nav-item hidden" onclick="show('adm')">АДМИН</div>
+        <div id="nv-u" class="nav-item active" onclick="show('user')">ГРУЗЫ</div>
+        <div id="adm-nav" class="nav-item hidden" onclick="show('admin')">АДМИН</div>
     </div>
 
     <script>
@@ -92,68 +103,86 @@
         function show(p) {
             document.querySelectorAll('.page').forEach(x => x.classList.add('hidden'));
             document.getElementById('pg-'+p).classList.remove('hidden');
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            if(p==='user') document.querySelectorAll('.nav-item')[0].classList.add('active');
-            else document.getElementById('adm-btn').classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            if(p==='user') document.getElementById('nv-u').classList.add('active');
+            else document.getElementById('adm-nav').classList.add('active');
         }
 
-        function setTab(id) {
-            document.querySelectorAll('.tab-c').forEach(x => x.classList.add('hidden'));
-            document.getElementById(id).classList.remove('hidden');
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            event.target.classList.add('active');
+        function setTab(t) {
+            document.querySelectorAll('.tab-content').forEach(x => x.classList.add('hidden'));
+            document.getElementById(t).classList.remove('hidden');
+            document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+            if(t==='adm-p') document.getElementById('t-p').classList.add('active');
+            if(t==='adm-u') document.getElementById('t-u').classList.add('active');
+            if(t==='adm-s') document.getElementById('t-s').classList.add('active');
         }
 
         const name = params.get('n'), code = params.get('c'), role = params.get('r');
         const price_kg = parseFloat(params.get('pr')) || 0;
 
-        if(!name || name === 'None') show('reg');
+        if(!name || name === 'None') { show('reg'); document.getElementById('main-nav').classList.add('hidden'); }
         else {
             show('user');
             document.getElementById('u-name').innerText = name;
             document.getElementById('u-code').innerText = code;
-            new QRCode(document.getElementById("qr-wrap"), { text: code, width: 120, height: 120 });
+            document.getElementById('ref-link').innerText = "t.me/" + params.get('bn') + "?start=" + params.get('tid');
+            new QRCode(document.getElementById("qr-wrap"), { text: code, width: 130, height: 130 });
+            
             if(role === 'Admin') {
-                document.getElementById('adm-btn').classList.remove('hidden');
+                document.getElementById('adm-nav').classList.remove('hidden');
                 document.getElementById('set-pr').value = price_kg;
                 document.getElementById('set-yk').value = params.get('yk') || "";
+                
+                const c_data = params.get('clients');
+                if(c_data) {
+                    let h = "";
+                    c_data.split(';').forEach(cl => {
+                        const [id, nm, cd] = cl.split('|');
+                        h += `<div class="card"><b>${nm}</b> (${cd})<br><small style="color:var(--gray)">ID: ${id}</small></div>`;
+                    });
+                    document.getElementById('clients-list').innerHTML = h;
+                }
             }
 
-            const ps = params.get('p');
-            if(ps) {
-                let html = "";
-                ps.split(';').forEach(i => {
-                    const [w, s, d, cc, tr, paid] = i.split('|');
+            const p_data = params.get('p');
+            if(p_data) {
+                let h = "";
+                p_data.split(';').forEach(p => {
+                    const [w, s, d, cc, tr, pd] = p.split('|');
                     if(cc === code || role === 'Admin') {
                         const isReady = s.includes('ГОТОВ');
-                        const cost = (parseFloat(w) * price_kg).toFixed(0);
-                        const payBtn = (paid === '0' && isReady && role !== 'Admin') ? 
-                            `<button class="btn btn-green" onclick="send({a:'pay', t:'${tr}', amount:${cost}})">ОПЛАТИТЬ ${cost}₽</button>` : '';
+                        const total = (parseFloat(w) * price_kg).toFixed(0);
+                        const pBtn = (pd === '0' && isReady && role !== 'Admin') ? 
+                            `<button class="btn btn-green" onclick="send({a:'pay', t:'${tr}', amount:${total}})">ОПЛАТИТЬ ${total}₽</button>` : '';
                         
-                        html += `<div class="card">
-                            <div class="status" style="color:${isReady?'#34c759':'#007aff'}">${s}</div>
-                            <div style="font-weight:bold;">${tr}</div>
-                            <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--gray); margin-top:5px;">
-                                <span>${w}кг | ${d}</span>
-                                <b>${paid==='1'?'✅ ОПЛАЧЕНО':'⌛ '+cost+'₽'}</b>
+                        h += `<div class="card">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                                <span class="badge" style="background:${isReady?'rgba(52,199,89,0.2)':'rgba(0,122,255,0.2)'}; color:${isReady?'var(--green)':'var(--blue)'}">${s}</span>
+                                <span style="font-size:10px; color:var(--gray)">${d}</span>
                             </div>
-                            ${payBtn}
+                            <div style="font-weight:900; font-size:16px;">${tr}</div>
+                            <div style="display:flex; justify-content:space-between; margin-top:10px; font-size:12px;">
+                                <span style="color:var(--gray)">${w}кг | ${cc}</span>
+                                <b style="color:${pd==='1'?'var(--green)':'var(--blue)'}">${pd==='1'?'✅ ОПЛАЧЕНО':'⌛ '+total+'₽'}</b>
+                            </div>
+                            ${pBtn}
                         </div>`;
                     }
                 });
-                document.getElementById('parcel-list').innerHTML = html || "Грузов нет";
-                document.getElementById('adm-list').innerHTML = html;
+                document.getElementById('parcel-list').innerHTML = h || "Грузов нет";
+                document.getElementById('adm-parcel-list').innerHTML = h;
             }
         }
 
-        let scanner;
+        let html5QrCode;
         function startScan() {
             document.getElementById('reader').classList.remove('hidden');
-            scanner = new Html5Qrcode("reader");
-            scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (txt) => {
+            html5QrCode = new Html5Qrcode("reader");
+            html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (txt) => {
                 document.getElementById('adm-t').value = txt;
-                scanner.stop();
+                html5QrCode.stop();
                 document.getElementById('reader').classList.add('hidden');
+                tg.HapticFeedback.notificationOccurred('success');
             });
         }
     </script>
