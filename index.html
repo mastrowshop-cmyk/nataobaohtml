@@ -10,102 +10,95 @@
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
         :root { --bg: #000; --card: #121214; --blue: #007aff; --liquid: linear-gradient(135deg, #007aff, #5856d6); --green: #34c759; }
         
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: #fff; margin: 0; padding: 15px; padding-bottom: 120px; -webkit-user-select: none; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: #fff; margin: 0; padding: 15px; padding-bottom: 120px; overflow-x: hidden; }
         
-        /* Жидкие кнопки и элементы */
-        .avatar { width: 60px; height: 60px; border-radius: 50%; background: var(--liquid); display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 800; box-shadow: 0 10px 20px rgba(0,122,255,0.3); border: 1px solid rgba(255,255,255,0.1); }
-        .card { background: var(--card); border-radius: 28px; padding: 20px; margin-bottom: 15px; border: 1px solid #222; backdrop-filter: blur(10px); }
+        /* Жидкий стиль */
+        .avatar { width: 65px; height: 65px; border-radius: 50%; background: var(--liquid); display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 800; box-shadow: 0 10px 25px rgba(0,122,255,0.3); border: 2px solid rgba(255,255,255,0.1); }
+        .card { background: var(--card); border-radius: 30px; padding: 22px; margin-bottom: 15px; border: 1px solid #222; }
         
-        .btn { width: 100%; padding: 16px; border-radius: 20px; border: none; font-weight: 800; cursor: pointer; transition: 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); font-size: 13px; margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .btn:active { transform: scale(0.96); opacity: 0.8; }
-        .btn-liquid { background: var(--liquid); color: #fff; box-shadow: 0 8px 25px rgba(0,122,255,0.2); }
+        .btn { width: 100%; padding: 18px; border-radius: 22px; border: none; font-weight: 800; cursor: pointer; transition: 0.3s; font-size: 14px; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; text-transform: uppercase; }
+        .btn:active { transform: scale(0.95); }
+        .btn-liquid { background: var(--liquid); color: #fff; box-shadow: 0 10px 25px rgba(0,122,255,0.2); }
         .btn-outline { background: rgba(255,255,255,0.05); border: 1px solid #333; color: #fff; }
 
-        input { width: 100%; background: #1a1a1c; border: 1px solid #2a2a2c; color: #fff; padding: 15px; border-radius: 18px; margin-bottom: 10px; box-sizing: border-box; font-size: 16px; outline: none; }
-        input:focus { border-color: var(--blue); }
-
-        /* КАСТОМНЫЙ СКАНЕР */
-        #scanner-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; display: none; }
-        .scan-frame { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 280px; height: 200px; border: 2px solid var(--blue); border-radius: 25px; box-shadow: 0 0 0 1000px rgba(0,0,0,0.8); z-index: 10; overflow: hidden; }
-        .scan-laser { position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: var(--blue); box-shadow: 0 0 20px 3px var(--blue); animation: laser 2s infinite linear; }
-        @keyframes laser { 0% { top: 0%; } 50% { top: 100%; } 100% { top: 0%; } }
-
-        .nav { position: fixed; bottom: 25px; left: 15px; right: 15px; background: rgba(18,18,20,0.85); backdrop-filter: blur(20px); display: flex; padding: 6px; border-radius: 30px; border: 1px solid #252525; z-index: 1000; }
-        .nav-item { flex: 1; text-align: center; color: #555; font-size: 9px; font-weight: 800; padding: 12px; border-radius: 22px; transition: 0.3s; }
-        .nav-item.active { color: #fff; background: rgba(255,255,255,0.1); }
+        input { width: 100%; background: #1a1a1c; border: 1px solid #2a2a2c; color: #fff; padding: 18px; border-radius: 20px; margin-bottom: 12px; box-sizing: border-box; font-size: 16px; outline: none; }
         
-        .badge { font-size: 10px; padding: 4px 10px; border-radius: 10px; font-weight: 800; display: inline-block; margin-bottom: 8px; }
+        /* Кастомный сканер */
+        #scanner-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; display: none; }
+        .scan-frame { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 280px; height: 200px; border: 2px solid var(--blue); border-radius: 25px; box-shadow: 0 0 0 1000px rgba(0,0,0,0.85); z-index: 10; overflow: hidden; }
+        .scan-laser { position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: var(--blue); box-shadow: 0 0 20px 2px var(--blue); animation: laser 2s infinite linear; }
+        @keyframes laser { 0%, 100% { top: 0%; } 50% { top: 100%; } }
+
+        .nav { position: fixed; bottom: 25px; left: 15px; right: 15px; background: rgba(18,18,20,0.85); backdrop-filter: blur(20px); display: flex; padding: 6px; border-radius: 35px; border: 1px solid #252525; z-index: 1000; }
+        .nav-item { flex: 1; text-align: center; color: #555; font-size: 9px; font-weight: 800; padding: 12px; border-radius: 25px; }
+        .nav-item.active { color: #fff; background: rgba(255,255,255,0.1); }
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
     <div id="scanner-modal">
-        <div id="reader-view" style="width:100%; height:100%;"></div>
+        <div id="v-scan" style="width:100%; height:100%;"></div>
         <div class="scan-frame"><div class="scan-laser"></div></div>
-        <button class="btn btn-outline" onclick="stopScan()" style="position:absolute; bottom:40px; width:80%; left:10%;">ОТМЕНА</button>
+        <button class="btn btn-outline" onclick="closeScan()" style="position:absolute; bottom:50px; width:80%; left:10%;">ОТМЕНА</button>
     </div>
 
     <div id="pg-reg" class="page hidden">
-        <h1 style="font-size:38px; font-weight:800; margin-bottom:10px; letter-spacing:-1px;">NaTaoBao</h1>
+        <h1 style="font-size:35px; font-weight:800; margin-bottom:20px;">NaTaoBao</h1>
         <div class="card">
             <input type="text" id="reg-n" placeholder="Имя">
             <input type="text" id="reg-c" placeholder="Персональный код">
-            <button class="btn btn-liquid" onclick="send({a:'reg', n:v('reg-n'), c:v('reg-c').toUpperCase()})">СОЗДАТЬ ПРОФИЛЬ</button>
+            <button class="btn btn-liquid" onclick="send({a:'reg', n:v('reg-n'), c:v('reg-c').toUpperCase()})">СОЗДАТЬ АККАУНТ</button>
         </div>
     </div>
 
     <div id="pg-user" class="page hidden">
-        <div style="display:flex; align-items:center; margin-bottom:20px;">
+        <div style="display:flex; align-items:center; margin-bottom:25px;">
             <div class="avatar" id="u-ava">?</div>
             <div style="margin-left:15px;">
-                <h3 id="u-name" style="margin:0; font-size:18px;">Загрузка...</h3>
-                <span id="u-code" style="color:var(--blue); font-weight:800; font-size:14px;">---</span>
+                <h3 id="u-name" style="margin:0;">Здравствуйте!</h3>
+                <span id="u-code" style="color:var(--blue); font-weight:800;">---</span>
             </div>
-            <button class="btn btn-outline" style="width:auto; margin-left:auto; padding:10px;" onclick="send({a:'upd'})">🔄</button>
+            <button class="btn btn-outline" style="width:auto; margin-left:auto; padding:12px;" onclick="location.reload()">🔄</button>
         </div>
-        
-        <div class="card" style="background:#fff; text-align:center; padding:20px; border-radius:35px;">
+        <div class="card" style="background:#fff; text-align:center; padding:25px; border-radius:40px;">
             <div id="qrcode" style="display:inline-block;"></div>
         </div>
-
-        <div class="card" style="border:1px dashed #333; background:rgba(255,255,255,0.02)">
-            <small style="opacity:0.5; font-size:10px;">ВАША РЕФЕРАЛЬНАЯ ССЫЛКА:</small>
+        <div class="card" style="border:1px dashed #333; background:rgba(0,122,255,0.02)">
+            <small style="opacity:0.5; font-size:10px;">РЕФЕРАЛЬНАЯ ССЫЛКА:</small>
             <div id="ref-link" style="color:var(--blue); font-size:11px; font-weight:800; margin-top:5px; word-break:break-all;">...</div>
         </div>
-
-        <h4 style="margin:20px 0 10px; font-weight:800;">📦 МОИ ПОСЫЛКИ</h4>
+        <h3 style="font-weight:800; margin-top:20px;">📦 ПОСЫЛКИ</h3>
         <div id="parcel-list"></div>
     </div>
 
-    <div id="pg-cl" class="page hidden">
-        <h2 style="font-weight:800;">БАЗА КЛИЕНТОВ</h2>
-        <div id="client-list"></div>
-    </div>
-
     <div id="pg-adm" class="page hidden">
-        <h2 style="font-weight:800;">ПАНЕЛЬ ПЕРСОНАЛА</h2>
+        <h2 style="font-weight:800;">ПЕРСОНАЛ</h2>
         <div class="card">
-            <button class="btn btn-liquid" onclick="openScan('check_user')">🔍 СКАН QR КЛИЕНТА</button>
-            <div id="scan-res" style="margin-top:15px;"></div>
+            <h4>ПОИСК КЛИЕНТА (QR)</h4>
+            <button class="btn btn-liquid" onclick="openScan('check_user')">🔍 СКАН КЛИЕНТА</button>
+            <div id="scan-res" style="margin-top:10px;"></div>
         </div>
         <div class="card">
             <h4>ДОБАВИТЬ ГРУЗ</h4>
-            <button class="btn btn-outline" onclick="openScan('add_track')">📷 СКАН ТРЕК-НОМЕРА</button>
-            <input type="text" id="adm-t" placeholder="Трек-номер" style="margin-top:15px;">
+            <button class="btn btn-outline" onclick="openScan('add_track')">📷 СКАН ТРЕКА</button>
+            <input type="text" id="adm-t" placeholder="Трек-номер" style="margin-top:10px;">
             <input type="text" id="adm-c" placeholder="Код клиента">
             <input type="number" id="adm-w" step="0.1" placeholder="Вес (кг)" oninput="calcSum(this.value)">
-            <div id="calc-res" style="color:var(--green); font-weight:800; margin:10px 0;">Сумма: 0 ₽</div>
-            <div style="display:flex; gap:10px;">
-                <button class="btn btn-outline" onclick="send({a:'add', t:v('adm-t'), c:v('adm-c')})" style="flex:1">В ПУТЬ</button>
-                <button class="btn btn-liquid" onclick="send({a:'weight', t:v('adm-t'), w:v('adm-w')})" style="flex:1">ВЗВЕСИТЬ</button>
-            </div>
+            <div id="calc-res" style="color:var(--green); font-weight:800; margin-bottom:10px;">Сумма: 0 ₽</div>
+            <button class="btn btn-liquid" onclick="send({a:'add', t:v('adm-t'), c:v('adm-c')})">В ПУТЬ</button>
+            <button class="btn btn-outline" onclick="send({a:'weight', t:v('adm-t'), w:v('adm-w')})">ВЗВЕСИТЬ</button>
+        </div>
+        <div class="card">
+            <h4>НАСТРОЙКИ</h4>
+            <input type="number" id="s-pr" placeholder="Цена за кг">
+            <input type="text" id="s-rek" placeholder="Реквизиты">
+            <button class="btn btn-outline" onclick="send({a:'save_s', pr:v('s-pr'), r:v('s-rek')})">СОХРАНИТЬ</button>
         </div>
     </div>
 
     <div class="nav">
         <div class="nav-item active" onclick="show('user')">ПРОФИЛЬ</div>
-        <div id="nav-cl" class="nav-item hidden" onclick="show('cl')">КЛИЕНТЫ</div>
-        <div id="nav-ad" class="nav-item hidden" onclick="show('adm')">ПЕРСОНАЛ</div>
+        <div id="nav-ad" class="nav-item hidden" onclick="show('adm')">АДМИН</div>
     </div>
 
     <script>
@@ -115,76 +108,82 @@
         const params = new URLSearchParams(location.search);
         const send = (d) => { tg.sendData(JSON.stringify(d)); tg.close(); };
 
+        let allParcels = [];
+
         function show(p) {
             document.querySelectorAll('.page').forEach(x => x.classList.add('hidden'));
             document.getElementById('pg-'+p).classList.remove('hidden');
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             if(p==='user') document.querySelectorAll('.nav-item')[0].classList.add('active');
-            if(p==='cl') document.getElementById('nav-cl').classList.add('active');
             if(p==='adm') document.getElementById('nav-ad').classList.add('active');
         }
 
-        // Рендеринг данных
-        try {
-            const name = params.get('n'), code = params.get('c'), role = params.get('r') || 'Client', pr = parseFloat(params.get('pr')) || 0;
+        function renderParcels(filterCode = null) {
+            const pr = parseFloat(params.get('pr')) || 0;
+            const myCode = params.get('c');
+            const role = params.get('r') || 'Client';
+            
+            let h = "";
+            allParcels.forEach(p => {
+                const [w, s, d, cc, tr, pd] = p.split('|');
+                // Если админ ищет клиента ИЛИ это личный кабинет клиента
+                if ((filterCode && cc === filterCode) || (!filterCode && cc === myCode)) {
+                    const cost = (parseFloat(w) * pr).toFixed(0);
+                    const isReady = s.includes('ГОТОВ');
+                    h += `<div class="card">
+                        <span style="font-size:10px; color:${isReady?'var(--green)':'var(--blue)'}; font-weight:800;">${s}</span>
+                        <h3 style="margin:5px 0;">${tr}</h3>
+                        <div style="display:flex; justify-content:space-between; font-size:12px; opacity:0.6;">
+                            <span>${w}кг | ${d}</span>
+                            <b>${pd==='1'?'✅ ОПЛАЧЕНО':cost+' ₽'}</b>
+                        </div>
+                        ${(isReady && pd==='0' && role==='Client') ? `<button class="btn btn-liquid" onclick="send({a:'confirm_rek', t:'${tr}'})">Я ПОДТВЕРДИЛ ОПЛАТУ ✅</button>` : ''}
+                    </div>`;
+                }
+            });
+            return h || "<p style='text-align:center; opacity:0.5;'>Грузов не найдено</p>";
+        }
 
-            if(!name || name === 'None') { show('reg'); } 
+        try {
+            const name = params.get('n'), code = params.get('c'), role = params.get('r') || 'Client';
+            if(!name || name === 'None') { show('reg'); }
             else {
                 show('user');
-                document.getElementById('u-name').innerText = "Привет, " + name + "!";
+                document.getElementById('u-name').innerText = "Здравствуйте, " + name + "!";
                 document.getElementById('u-code').innerText = code;
                 document.getElementById('u-ava').innerText = name[0].toUpperCase();
                 document.getElementById('ref-link').innerText = "https://t.me/" + params.get('bn') + "?start=" + params.get('tid');
                 new QRCode(document.getElementById("qrcode"), { text: code, width: 180, height: 180 });
 
-                if(role === 'Admin' || role === 'Staff') {
-                    document.getElementById('nav-cl').classList.remove('hidden');
-                    document.getElementById('nav-ad').classList.remove('hidden');
-                }
+                if(role !== 'Client') document.getElementById('nav-ad').classList.remove('hidden');
 
-                const ps = params.get('p');
-                if(ps) {
-                    let h = "";
-                    ps.split(';').forEach(i => {
-                        const [w, s, d, cc, tr, pd] = i.split('|');
-                        if(cc === code || role !== 'Client') {
-                            const cost = (parseFloat(w) * pr).toFixed(0);
-                            const isReady = s.includes('ГОТОВ');
-                            h += `<div class="card">
-                                <span class="badge" style="background:${isReady?'var(--green)':'var(--blue)'}">${s}</span>
-                                <div style="font-weight:800; font-size:16px;">${tr}</div>
-                                <div style="display:flex; justify-content:space-between; margin-top:10px; font-size:12px; opacity:0.6;">
-                                    <span>${w}кг | ${d}</span>
-                                    <b>${pd==='1'?'✅ Оплачено':cost+' ₽'}</b>
-                                </div>
-                                ${(isReady && pd === '0' && role === 'Client') ? `<button class="btn btn-liquid" onclick="send({a:'confirm_rek', t:'${tr}'})">Я ПОДТВЕРДИЛ ОПЛАТУ ✅</button>` : ''}
-                            </div>`;
-                        }
-                    });
-                    document.getElementById('parcel-list').innerHTML = h || "Посылок нет";
+                if(params.get('p')) {
+                    allParcels = params.get('p').split('!!');
+                    document.getElementById('parcel-list').innerHTML = renderParcels();
                 }
             }
         } catch(e) { show('reg'); }
 
         function calcSum(w) { 
-            const pr = parseFloat(params.get('pr')) || 0;
-            document.getElementById('calc-res').innerText = "Сумма: " + (parseFloat(w||0)*pr).toFixed(0) + " ₽"; 
+            const price = parseFloat(params.get('pr')) || 0;
+            document.getElementById('calc-res').innerText = "Сумма: " + (parseFloat(w||0)*price).toFixed(0) + " ₽"; 
         }
 
         let sc;
-        function openScan(mode) {
+        function openScan(m) {
             document.getElementById('scanner-modal').style.display = 'block';
-            sc = new Html5Qrcode("reader-view");
+            sc = new Html5Qrcode("v-scan");
             sc.start({ facingMode: "environment" }, { fps: 20, qrbox: {width: 280, height: 200} }, (t) => {
-                if(mode === 'add_track') document.getElementById('adm-t').value = t;
-                if(mode === 'check_user') {
-                    document.getElementById('scan-res').innerHTML = `<div class="card" style="border-color:var(--blue)">КЛИЕНТ: <b>${t}</b><button class="btn btn-liquid" onclick="send({a:'find', c:'${t}'})">ОТКРЫТЬ ГРУЗЫ</button></div>`;
+                if(m === 'add_track') document.getElementById('adm-t').value = t;
+                if(m === 'check_user') {
+                    // Вместо отправки find, просто фильтруем список на месте!
+                    document.getElementById('scan-res').innerHTML = `<div class='card' style='border-color:var(--blue)'>Клиент: <b>${t}</b><div style='margin-top:15px;'>${renderParcels(t)}</div></div>`;
                 }
-                stopScan();
+                closeScan();
                 tg.HapticFeedback.notificationOccurred('success');
             });
         }
-        function stopScan() { if(sc) sc.stop(); document.getElementById('scanner-modal').style.display = 'none'; }
+        function closeScan() { if(sc) sc.stop(); document.getElementById('scanner-modal').style.display = 'none'; }
     </script>
 </body>
 </html>
