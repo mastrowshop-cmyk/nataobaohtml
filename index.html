@@ -1,189 +1,1294 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="https://unpkg.com/html5-qrcode"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-        :root { --bg: #000; --card: #121214; --blue: #007aff; --liquid: linear-gradient(135deg, #007aff, #5856d6); --green: #34c759; }
-        
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: #fff; margin: 0; padding: 15px; padding-bottom: 120px; overflow-x: hidden; }
-        
-        /* Жидкий стиль */
-        .avatar { width: 65px; height: 65px; border-radius: 50%; background: var(--liquid); display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 800; box-shadow: 0 10px 25px rgba(0,122,255,0.3); border: 2px solid rgba(255,255,255,0.1); }
-        .card { background: var(--card); border-radius: 30px; padding: 22px; margin-bottom: 15px; border: 1px solid #222; }
-        
-        .btn { width: 100%; padding: 18px; border-radius: 22px; border: none; font-weight: 800; cursor: pointer; transition: 0.3s; font-size: 14px; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; text-transform: uppercase; }
-        .btn:active { transform: scale(0.95); }
-        .btn-liquid { background: var(--liquid); color: #fff; box-shadow: 0 10px 25px rgba(0,122,255,0.2); }
-        .btn-outline { background: rgba(255,255,255,0.05); border: 1px solid #333; color: #fff; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>NaTaoBao — доставка из Китая</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --bg2: #111118;
+  --bg3: #18181f;
+  --card: #1c1c26;
+  --card2: #22222e;
+  --accent: #c8a96e;
+  --accent2: #e8c47a;
+  --accent-glow: rgba(200,169,110,0.15);
+  --text: #f0ece4;
+  --text2: #9b9490;
+  --text3: #6b6560;
+  --border: rgba(200,169,110,0.15);
+  --border2: rgba(200,169,110,0.25);
+  --success: #4caf7d;
+  --danger: #e05555;
+  --warning: #e08a30;
+  --info: #5a8fd4;
+  --r: 14px;
+  --r2: 10px;
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { height:100%; background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; overflow-x:hidden; }
 
-        input { width: 100%; background: #1a1a1c; border: 1px solid #2a2a2c; color: #fff; padding: 18px; border-radius: 20px; margin-bottom: 12px; box-sizing: border-box; font-size: 16px; outline: none; }
-        
-        /* Кастомный сканер */
-        #scanner-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; display: none; }
-        .scan-frame { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 280px; height: 200px; border: 2px solid var(--blue); border-radius: 25px; box-shadow: 0 0 0 1000px rgba(0,0,0,0.85); z-index: 10; overflow: hidden; }
-        .scan-laser { position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: var(--blue); box-shadow: 0 0 20px 2px var(--blue); animation: laser 2s infinite linear; }
-        @keyframes laser { 0%, 100% { top: 0%; } 50% { top: 100%; } }
+/* ── SCREEN SYSTEM ── */
+.screen { display:none; flex-direction:column; min-height:100vh; padding:16px 16px 100px; animation:fadeIn .3s ease; }
+.screen.active { display:flex; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
 
-        .nav { position: fixed; bottom: 25px; left: 15px; right: 15px; background: rgba(18,18,20,0.85); backdrop-filter: blur(20px); display: flex; padding: 6px; border-radius: 35px; border: 1px solid #252525; z-index: 1000; }
-        .nav-item { flex: 1; text-align: center; color: #555; font-size: 9px; font-weight: 800; padding: 12px; border-radius: 25px; }
-        .nav-item.active { color: #fff; background: rgba(255,255,255,0.1); }
-        .hidden { display: none !important; }
-    </style>
+/* ── LOGO ── */
+.logo {
+  font-family:'Unbounded',sans-serif;
+  font-size:22px; font-weight:700;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  letter-spacing:-0.5px;
+}
+.logo-sub { font-size:10px; color:var(--text3); font-weight:400; letter-spacing:2px; text-transform:uppercase; margin-top:2px; }
+
+/* ── HEADER ── */
+.header { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; }
+.header-right { display:flex; gap:10px; align-items:center; }
+
+/* ── CARDS ── */
+.card {
+  background:var(--card);
+  border:0.5px solid var(--border);
+  border-radius:var(--r);
+  padding:18px;
+  margin-bottom:14px;
+}
+.card.glowing { box-shadow:0 0 30px var(--accent-glow); border-color:var(--border2); }
+
+/* ── SECTION TITLE ── */
+.section-title {
+  font-family:'Unbounded',sans-serif;
+  font-size:11px; font-weight:600;
+  color:var(--text3); letter-spacing:1.5px; text-transform:uppercase;
+  margin-bottom:12px;
+}
+
+/* ── BUTTONS ── */
+.btn {
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  padding:14px 20px; border-radius:var(--r2); font-size:14px; font-weight:500;
+  cursor:pointer; border:none; width:100%; font-family:'Inter',sans-serif;
+  transition:all .2s; position:relative; overflow:hidden;
+}
+.btn::after { content:''; position:absolute; inset:0; opacity:0; transition:.2s; background:rgba(255,255,255,0.05); }
+.btn:active::after { opacity:1; }
+.btn-primary { background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#0a0a0f; font-weight:600; }
+.btn-primary:active { transform:scale(0.98); }
+.btn-ghost { background:var(--card2); color:var(--text); border:0.5px solid var(--border); }
+.btn-ghost:active { border-color:var(--border2); }
+.btn-danger { background:rgba(224,85,85,0.15); color:var(--danger); border:0.5px solid rgba(224,85,85,0.3); }
+.btn-success { background:rgba(76,175,125,0.15); color:var(--success); border:0.5px solid rgba(76,175,125,0.3); }
+.btn-sm { padding:9px 14px; font-size:13px; border-radius:8px; }
+
+/* ── INPUTS ── */
+.input-group { margin-bottom:14px; }
+.input-label { font-size:12px; color:var(--text3); margin-bottom:6px; letter-spacing:0.5px; display:block; }
+.inp {
+  width:100%; background:var(--bg3); border:0.5px solid var(--border);
+  border-radius:var(--r2); padding:13px 16px; font-size:15px;
+  color:var(--text); font-family:'Inter',sans-serif;
+  transition:border-color .2s; outline:none;
+}
+.inp:focus { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-glow); }
+.inp::placeholder { color:var(--text3); }
+
+/* ── STATUS BADGE ── */
+.badge {
+  display:inline-flex; align-items:center; gap:5px;
+  padding:4px 10px; border-radius:20px; font-size:11px; font-weight:500;
+}
+.badge-pending { background:rgba(224,138,48,0.15); color:var(--warning); border:0.5px solid rgba(224,138,48,0.3); }
+.badge-ok { background:rgba(76,175,125,0.15); color:var(--success); border:0.5px solid rgba(76,175,125,0.3); }
+.badge-danger { background:rgba(224,85,85,0.15); color:var(--danger); border:0.5px solid rgba(224,85,85,0.3); }
+.dot { width:6px; height:6px; border-radius:50%; background:currentColor; }
+
+/* ── BOTTOM NAV ── */
+.bottom-nav {
+  position:fixed; bottom:0; left:0; right:0;
+  background:rgba(17,17,24,0.95); backdrop-filter:blur(20px);
+  border-top:0.5px solid var(--border);
+  display:flex; padding:8px 0 max(8px,env(safe-area-inset-bottom));
+  z-index:100;
+}
+.nav-item {
+  flex:1; display:flex; flex-direction:column; align-items:center; gap:4px;
+  padding:6px; cursor:pointer; border:none; background:none; color:var(--text3);
+  font-size:10px; font-family:'Inter',sans-serif; transition:color .2s;
+}
+.nav-item.active { color:var(--accent); }
+.nav-icon { font-size:20px; line-height:1; }
+
+/* ── QR ── */
+#qr-box { display:flex; justify-content:center; margin:16px 0 8px; }
+#qr-box canvas, #qr-box img { border-radius:10px; }
+
+/* ── PARCELS LIST ── */
+.parcel-item {
+  display:flex; align-items:center; gap:12px;
+  padding:12px 0; border-bottom:0.5px solid var(--border);
+}
+.parcel-item:last-child { border-bottom:none; padding-bottom:0; }
+.parcel-icon { width:40px; height:40px; border-radius:10px; background:var(--bg3); border:0.5px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+.parcel-info { flex:1; min-width:0; }
+.parcel-track { font-size:13px; font-weight:500; color:var(--text); font-family:'Unbounded',sans-serif; font-size:11px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.parcel-status { font-size:12px; color:var(--text3); margin-top:2px; }
+.parcel-price { font-size:13px; font-weight:600; color:var(--accent); white-space:nowrap; }
+
+/* ── NOTIF ── */
+.notif-item {
+  padding:13px; border-radius:var(--r2);
+  background:var(--bg3); border:0.5px solid var(--border);
+  margin-bottom:10px;
+}
+.notif-time { font-size:11px; color:var(--text3); margin-bottom:4px; }
+.notif-text { font-size:13px; color:var(--text); line-height:1.5; }
+
+/* ── DIVIDER ── */
+.divider { height:0.5px; background:var(--border); margin:14px 0; }
+
+/* ── PROFILE STAT ── */
+.stat-row { display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:0.5px solid var(--border); }
+.stat-row:last-child { border-bottom:none; }
+.stat-label { font-size:13px; color:var(--text3); }
+.stat-val { font-size:13px; font-weight:500; color:var(--text); }
+
+/* ── OPERATOR / ADMIN ── */
+.scan-area {
+  background:var(--bg3); border:1.5px dashed var(--border2);
+  border-radius:var(--r); padding:32px 16px; text-align:center; margin:16px 0;
+}
+.scan-area-icon { font-size:48px; margin-bottom:12px; }
+.scan-area-text { color:var(--text3); font-size:13px; }
+
+.client-row {
+  display:flex; align-items:center; gap:12px;
+  padding:12px; background:var(--bg3); border:0.5px solid var(--border);
+  border-radius:var(--r2); margin-bottom:8px; cursor:pointer;
+  transition:border-color .2s;
+}
+.client-row:active { border-color:var(--border2); }
+.client-avatar { width:38px; height:38px; border-radius:50%; background:linear-gradient(135deg,var(--accent),var(--accent2)); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; color:#0a0a0f; flex-shrink:0; }
+.client-info { flex:1; min-width:0; }
+.client-name { font-size:14px; font-weight:500; }
+.client-code { font-size:12px; color:var(--text3); }
+
+/* ── TOAST ── */
+.toast {
+  position:fixed; top:20px; left:50%; transform:translateX(-50%) translateY(-80px);
+  background:var(--card); border:0.5px solid var(--border2); border-radius:var(--r2);
+  padding:12px 20px; font-size:13px; color:var(--text); z-index:1000;
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1); white-space:nowrap;
+  box-shadow:0 8px 32px rgba(0,0,0,0.5);
+}
+.toast.show { transform:translateX(-50%) translateY(0); }
+
+/* ── MODAL ── */
+.modal-backdrop {
+  display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7);
+  z-index:200; align-items:flex-end;
+}
+.modal-backdrop.active { display:flex; animation:fadeIn .2s; }
+.modal {
+  background:var(--card); border:0.5px solid var(--border);
+  border-radius:20px 20px 0 0; padding:20px; width:100%;
+  max-height:85vh; overflow-y:auto;
+  animation:slideUp .3s cubic-bezier(.34,1.2,.64,1);
+}
+@keyframes slideUp { from{transform:translateY(100%)} to{transform:none} }
+.modal-handle { width:36px; height:4px; background:var(--border2); border-radius:2px; margin:0 auto 16px; }
+
+/* ── GREETING CARD ── */
+.greeting-card {
+  background:linear-gradient(135deg,#1c1c26,#22222e);
+  border:0.5px solid var(--border2); border-radius:18px;
+  padding:24px; margin-bottom:16px; position:relative; overflow:hidden;
+}
+.greeting-card::before {
+  content:''; position:absolute; top:-40px; right:-40px;
+  width:120px; height:120px; border-radius:50%;
+  background:var(--accent-glow); filter:blur(30px);
+}
+.greeting-hello { font-size:13px; color:var(--text3); margin-bottom:4px; }
+.greeting-name { font-family:'Unbounded',sans-serif; font-size:20px; font-weight:700; color:var(--text); }
+
+/* ── LOADING ── */
+.spinner {
+  width:28px; height:28px; border:2px solid var(--border);
+  border-top-color:var(--accent); border-radius:50%;
+  animation:spin .8s linear infinite; margin:0 auto;
+}
+@keyframes spin { to{transform:rotate(360deg)} }
+
+/* ── PENDING SCREEN ── */
+.pending-icon { font-size:64px; text-align:center; margin:40px 0 20px; }
+.pending-title { font-family:'Unbounded',sans-serif; font-size:18px; font-weight:600; text-align:center; margin-bottom:12px; }
+.pending-desc { font-size:14px; color:var(--text3); text-align:center; line-height:1.6; }
+
+/* operator scanner */
+#reader { width:100%; border-radius:var(--r); overflow:hidden; }
+.scan-result-box { background:var(--bg3); border:0.5px solid var(--success); border-radius:var(--r2); padding:14px; margin-top:12px; }
+.scan-result-track { font-family:'Unbounded',sans-serif; font-size:12px; color:var(--success); word-break:break-all; }
+
+.weight-display {
+  font-family:'Unbounded',sans-serif; font-size:42px; font-weight:700;
+  color:var(--accent); text-align:center; margin:16px 0 4px;
+}
+.weight-unit { text-align:center; color:var(--text3); font-size:13px; margin-bottom:16px; }
+.price-display {
+  font-size:28px; font-weight:700; text-align:center; color:var(--text);
+  margin:8px 0; font-family:'Unbounded',sans-serif;
+}
+
+/* admin tariff */
+.tariff-current { font-family:'Unbounded',sans-serif; font-size:32px; font-weight:700; color:var(--accent); text-align:center; margin:8px 0; }
+</style>
 </head>
 <body>
-    <div id="scanner-modal">
-        <div id="v-scan" style="width:100%; height:100%;"></div>
-        <div class="scan-frame"><div class="scan-laser"></div></div>
-        <button class="btn btn-outline" onclick="closeScan()" style="position:absolute; bottom:50px; width:80%; left:10%;">ОТМЕНА</button>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ═══════════════════════════════════════ SCREEN: LOADING -->
+<div class="screen active" id="s-loading" style="justify-content:center;align-items:center;gap:16px">
+  <div style="text-align:center">
+    <div class="logo" style="font-size:28px;margin-bottom:6px">NaTaoBao</div>
+    <div class="logo-sub">доставка из китая</div>
+  </div>
+  <div class="spinner" style="margin-top:40px"></div>
+</div>
+
+<!-- ═══════════════════════════════════════ SCREEN: REGISTRATION -->
+<div class="screen" id="s-register">
+  <div class="header">
+    <div>
+      <div class="logo">NaTaoBao</div>
+      <div class="logo-sub">Регистрация</div>
+    </div>
+  </div>
+
+  <div class="card glowing" style="margin-bottom:20px">
+    <div class="section-title">Добро пожаловать</div>
+    <p style="font-size:14px;color:var(--text3);line-height:1.6">Заполните данные для регистрации. После проверки администратором вы получите доступ к сервису.</p>
+  </div>
+
+  <div class="input-group">
+    <label class="input-label">Номер телефона</label>
+    <input class="inp" id="reg-phone" type="tel" placeholder="+7 900 000 00 00">
+  </div>
+  <div class="input-group">
+    <label class="input-label">Персональный код</label>
+    <input class="inp" id="reg-code" type="text" placeholder="Придумайте код (напр. IVAN001)" style="text-transform:uppercase">
+  </div>
+  <div class="input-group">
+    <label class="input-label">Имя</label>
+    <input class="inp" id="reg-name" type="text" placeholder="Ваше имя">
+  </div>
+
+  <div style="margin-top:8px">
+    <button class="btn btn-primary" onclick="submitRegistration()">
+      <span>Отправить заявку</span>
+      <span>→</span>
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ SCREEN: PENDING -->
+<div class="screen" id="s-pending" style="justify-content:center;align-items:center;text-align:center">
+  <div class="pending-icon">⏳</div>
+  <div class="pending-title">Заявка на рассмотрении</div>
+  <div class="pending-desc">Администратор рассматривает вашу заявку. Вы получите уведомление о результате.</div>
+  <div style="margin-top:32px;width:100%">
+    <button class="btn btn-ghost" onclick="checkStatus()">🔄 Проверить статус</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ SCREEN: CLIENT HOME -->
+<div class="screen" id="s-client">
+  <div class="header">
+    <div>
+      <div class="logo">NaTaoBao</div>
+      <div class="logo-sub">Клиент</div>
+    </div>
+    <button class="btn btn-ghost btn-sm" style="width:auto" onclick="checkStatus()">🔄</button>
+  </div>
+
+  <!-- Greeting -->
+  <div class="greeting-card">
+    <div class="greeting-hello">Привет,</div>
+    <div class="greeting-name" id="client-greeting-name">Иван</div>
+    <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
+      <span class="badge badge-ok"><span class="dot"></span>Активен</span>
+    </div>
+  </div>
+
+  <!-- Profile card -->
+  <div class="section-title">Ваши данные</div>
+  <div class="card">
+    <div class="stat-row">
+      <span class="stat-label">Персональный код</span>
+      <span class="stat-val" id="client-pcode" style="font-family:'Unbounded',sans-serif;font-size:12px;color:var(--accent)">—</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Номер телефона</span>
+      <span class="stat-val" id="client-phone">—</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Посылок всего</span>
+      <span class="stat-val" id="client-total">0</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Ожидают оплаты</span>
+      <span class="stat-val" id="client-unpaid" style="color:var(--warning)">0</span>
+    </div>
+  </div>
+
+  <!-- QR -->
+  <div class="section-title">Мой QR-код</div>
+  <div class="card glowing" style="text-align:center">
+    <div id="qr-box"></div>
+    <div style="font-size:11px;color:var(--text3);margin-top:8px">Покажите оператору для идентификации</div>
+  </div>
+
+  <!-- Bottom nav -->
+  <div class="bottom-nav">
+    <button class="nav-item active" onclick="showClientTab('home')">
+      <span class="nav-icon">🏠</span><span>Главная</span>
+    </button>
+    <button class="nav-item" onclick="showClientTab('parcels')">
+      <span class="nav-icon">📦</span><span>Посылки</span>
+    </button>
+    <button class="nav-item" onclick="showClientTab('notifs')">
+      <span class="nav-icon">🔔</span><span>Уведомления</span>
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ SCREEN: CLIENT PARCELS -->
+<div class="screen" id="s-client-parcels">
+  <div class="header">
+    <button class="btn btn-ghost btn-sm" style="width:auto" onclick="showClientTab('home')">← Назад</button>
+    <button class="btn btn-ghost btn-sm" style="width:auto" onclick="checkStatus()">🔄</button>
+  </div>
+  <div class="section-title">Мои посылки</div>
+  <div id="parcels-list"><div style="text-align:center;color:var(--text3);padding:40px 0">Посылок пока нет</div></div>
+
+  <div class="bottom-nav">
+    <button class="nav-item" onclick="showClientTab('home')"><span class="nav-icon">🏠</span><span>Главная</span></button>
+    <button class="nav-item active" onclick="showClientTab('parcels')"><span class="nav-icon">📦</span><span>Посылки</span></button>
+    <button class="nav-item" onclick="showClientTab('notifs')"><span class="nav-icon">🔔</span><span>Уведомления</span></button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ SCREEN: CLIENT NOTIFS -->
+<div class="screen" id="s-client-notifs">
+  <div class="header">
+    <button class="btn btn-ghost btn-sm" style="width:auto" onclick="showClientTab('home')">← Назад</button>
+    <button class="btn btn-ghost btn-sm" style="width:auto" onclick="checkStatus()">🔄</button>
+  </div>
+  <div class="section-title">Уведомления</div>
+  <div id="notifs-list"><div style="text-align:center;color:var(--text3);padding:40px 0">Уведомлений нет</div></div>
+
+  <div class="bottom-nav">
+    <button class="nav-item" onclick="showClientTab('home')"><span class="nav-icon">🏠</span><span>Главная</span></button>
+    <button class="nav-item" onclick="showClientTab('parcels')"><span class="nav-icon">📦</span><span>Посылки</span></button>
+    <button class="nav-item active" onclick="showClientTab('notifs')"><span class="nav-icon">🔔</span><span>Уведомления</span></button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ SCREEN: OPERATOR -->
+<div class="screen" id="s-operator">
+  <div class="header">
+    <div>
+      <div class="logo">NaTaoBao</div>
+      <div class="logo-sub">Оператор</div>
+    </div>
+    <button class="btn btn-ghost btn-sm" style="width:auto" onclick="checkStatus()">🔄</button>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-item active" onclick="showOpTab('add')"><span class="nav-icon">➕</span><span>Добавить</span></button>
+    <button class="nav-item" onclick="showOpTab('weigh')"><span class="nav-icon">⚖️</span><span>Взвесить</span></button>
+    <button class="nav-item" onclick="showOpTab('issue')"><span class="nav-icon">📤</span><span>Выдача</span></button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ SCREEN: OPERATOR ADD -->
+<div class="screen" id="s-op-add">
+  <div class="header">
+    <button class="btn btn-ghost btn-sm" style="width:auto" onclick="showOpTab('add')">← Назад</button>
+  </div>
+  <div class="section-title">Добавить посылку</div>
+
+  <div class="input-group">
+    <label class="input-label">Персональный код клиента</label>
+    <input class="inp" id="op-client-code" type="text" placeholder="IVAN001" style="text-transform:uppercase">
+  </div>
+
+  <div class="input-group">
+    <label class="input-label">Трек-номер / штрих-код</label>
+    <div style="display:flex;gap:8px">
+      <input class="inp" id="op-track" type="text" placeholder="Введите или сканируйте" style="flex:1">
+      <button class="btn btn-ghost btn-sm" style="width:auto;padding:0 14px" onclick="openScannerModal('add')">📷</button>
+    </div>
+  </div>
+
+  <button class="btn btn-primary" onclick="addParcel()">Добавить посылку</button>
+
+  <div class="bottom-nav">
+    <button class="nav-item active" onclick="showOpTab('add')"><span class="nav-icon">➕</span><span>Добавить</span></button>
+    <button class="nav-item" onclick="showOpTab('weigh')"><span class="nav-icon">⚖️</span><span>Взвесить</span></button>
+    <button class="nav-item" onclick="showOpTab('issue')"><span class="nav-icon">📤</span><span>Выдача</span></button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ SCREEN: OPERATOR WEIGH -->
+<div class="screen" id="s-op-weigh">
+  <div class="header">
+    <div class="section-title" style="margin:0">Взвешивание</div>
+    <button class="btn btn-ghost btn-sm" style="width:auto" onclick="checkStatus()">🔄</button>
+  </div>
+
+  <div class="input-group">
+    <label class="input-label">Трек-номер / штрих-код</label>
+    <div style="display:flex;gap:8px">
+      <input class="inp" id="weigh-track" type="text" placeholder="Сканируйте или введите">
+      <button class="btn btn-ghost btn-sm" style="width:auto;padding:0 14px" onclick="openScannerModal('weigh')">📷</button>
+    </div>
+  </div>
+  <button class="btn btn-ghost" style="margin-bottom:14px" onclick="lookupTrack()">Найти посылку</button>
+
+  <div id="weigh-info" style="display:none">
+    <div class="card">
+      <div class="stat-row"><span class="stat-label">Клиент</span><span class="stat-val" id="weigh-client-name">—</span></div>
+      <div class="stat-row"><span class="stat-label">Код</span><span class="stat-val" id="weigh-client-code">—</span></div>
+      <div class="stat-row"><span class="stat-label">Трек</span><span class="stat-val" id="weigh-track-show" style="font-size:11px;font-family:'Unbounded',sans-serif">—</span></div>
     </div>
 
-    <div id="pg-reg" class="page hidden">
-        <h1 style="font-size:35px; font-weight:800; margin-bottom:20px;">NaTaoBao</h1>
-        <div class="card">
-            <input type="text" id="reg-n" placeholder="Имя">
-            <input type="text" id="reg-c" placeholder="Персональный код">
-            <button class="btn btn-liquid" onclick="send({a:'reg', n:v('reg-n'), c:v('reg-c').toUpperCase()})">СОЗДАТЬ АККАУНТ</button>
-        </div>
+    <div class="input-group">
+      <label class="input-label">Вес (кг)</label>
+      <input class="inp" id="weigh-kg" type="number" step="0.01" placeholder="0.00" oninput="calcPrice()">
     </div>
 
-    <div id="pg-user" class="page hidden">
-        <div style="display:flex; align-items:center; margin-bottom:25px;">
-            <div class="avatar" id="u-ava">?</div>
-            <div style="margin-left:15px;">
-                <h3 id="u-name" style="margin:0;">Здравствуйте!</h3>
-                <span id="u-code" style="color:var(--blue); font-weight:800;">---</span>
-            </div>
-            <button class="btn btn-outline" style="width:auto; margin-left:auto; padding:12px;" onclick="location.reload()">🔄</button>
-        </div>
-        <div class="card" style="background:#fff; text-align:center; padding:25px; border-radius:40px;">
-            <div id="qrcode" style="display:inline-block;"></div>
-        </div>
-        <div class="card" style="border:1px dashed #333; background:rgba(0,122,255,0.02)">
-            <small style="opacity:0.5; font-size:10px;">РЕФЕРАЛЬНАЯ ССЫЛКА:</small>
-            <div id="ref-link" style="color:var(--blue); font-size:11px; font-weight:800; margin-top:5px; word-break:break-all;">...</div>
-        </div>
-        <h3 style="font-weight:800; margin-top:20px;">📦 ПОСЫЛКИ</h3>
-        <div id="parcel-list"></div>
+    <div class="weight-display" id="weigh-display">—</div>
+    <div class="weight-unit">кг</div>
+    <div style="text-align:center;color:var(--text3);font-size:13px;margin-bottom:4px">К оплате</div>
+    <div class="price-display" id="weigh-price">—</div>
+    <div style="text-align:center;color:var(--text3);font-size:11px;margin-bottom:20px" id="weigh-tariff-note">тариф 570₽/кг</div>
+
+    <button class="btn btn-primary" onclick="saveWeight()">💾 Сохранить и уведомить клиента</button>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-item" onclick="showOpTab('add')"><span class="nav-icon">➕</span><span>Добавить</span></button>
+    <button class="nav-item active" onclick="showOpTab('weigh')"><span class="nav-icon">⚖️</span><span>Взвесить</span></button>
+    <button class="nav-item" onclick="showOpTab('issue')"><span class="nav-icon">📤</span><span>Выдача</span></button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ SCREEN: OPERATOR ISSUE (QR scan) -->
+<div class="screen" id="s-op-issue">
+  <div class="header">
+    <div class="section-title" style="margin:0">Выдача посылок</div>
+  </div>
+
+  <div class="scan-area" onclick="openScannerModal('issue')">
+    <div class="scan-area-icon">📷</div>
+    <div style="font-size:15px;font-weight:500;margin-bottom:6px">Сканировать QR клиента</div>
+    <div class="scan-area-text">Нажмите для открытия камеры</div>
+  </div>
+
+  <div id="issue-client-info" style="display:none">
+    <div class="card">
+      <div class="stat-row"><span class="stat-label">Клиент</span><span class="stat-val" id="issue-name">—</span></div>
+      <div class="stat-row"><span class="stat-label">Код</span><span class="stat-val" id="issue-code">—</span></div>
+      <div class="stat-row"><span class="stat-label">Посылок</span><span class="stat-val" id="issue-count">0</span></div>
+      <div class="stat-row"><span class="stat-label">Оплачено</span><span class="stat-val" id="issue-paid">—</span></div>
     </div>
+    <button class="btn btn-success" onclick="issueParcel()">✅ Подтвердить выдачу</button>
+  </div>
 
-    <div id="pg-adm" class="page hidden">
-        <h2 style="font-weight:800;">ПЕРСОНАЛ</h2>
-        <div class="card">
-            <h4>ПОИСК КЛИЕНТА (QR)</h4>
-            <button class="btn btn-liquid" onclick="openScan('check_user')">🔍 СКАН КЛИЕНТА</button>
-            <div id="scan-res" style="margin-top:10px;"></div>
-        </div>
-        <div class="card">
-            <h4>ДОБАВИТЬ ГРУЗ</h4>
-            <button class="btn btn-outline" onclick="openScan('add_track')">📷 СКАН ТРЕКА</button>
-            <input type="text" id="adm-t" placeholder="Трек-номер" style="margin-top:10px;">
-            <input type="text" id="adm-c" placeholder="Код клиента">
-            <input type="number" id="adm-w" step="0.1" placeholder="Вес (кг)" oninput="calcSum(this.value)">
-            <div id="calc-res" style="color:var(--green); font-weight:800; margin-bottom:10px;">Сумма: 0 ₽</div>
-            <button class="btn btn-liquid" onclick="send({a:'add', t:v('adm-t'), c:v('adm-c')})">В ПУТЬ</button>
-            <button class="btn btn-outline" onclick="send({a:'weight', t:v('adm-t'), w:v('adm-w')})">ВЗВЕСИТЬ</button>
-        </div>
-        <div class="card">
-            <h4>НАСТРОЙКИ</h4>
-            <input type="number" id="s-pr" placeholder="Цена за кг">
-            <input type="text" id="s-rek" placeholder="Реквизиты">
-            <button class="btn btn-outline" onclick="send({a:'save_s', pr:v('s-pr'), r:v('s-rek')})">СОХРАНИТЬ</button>
-        </div>
+  <div class="bottom-nav">
+    <button class="nav-item" onclick="showOpTab('add')"><span class="nav-icon">➕</span><span>Добавить</span></button>
+    <button class="nav-item" onclick="showOpTab('weigh')"><span class="nav-icon">⚖️</span><span>Взвесить</span></button>
+    <button class="nav-item active" onclick="showOpTab('issue')"><span class="nav-icon">📤</span><span>Выдача</span></button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ SCREEN: ADMIN -->
+<div class="screen" id="s-admin">
+  <div class="header">
+    <div>
+      <div class="logo">NaTaoBao</div>
+      <div class="logo-sub">Администратор</div>
     </div>
+    <button class="btn btn-ghost btn-sm" style="width:auto" onclick="checkStatus()">🔄</button>
+  </div>
 
-    <div class="nav">
-        <div class="nav-item active" onclick="show('user')">ПРОФИЛЬ</div>
-        <div id="nav-ad" class="nav-item hidden" onclick="show('adm')">АДМИН</div>
+  <div class="bottom-nav">
+    <button class="nav-item active" onclick="showAdminTab('clients')"><span class="nav-icon">👥</span><span>Клиенты</span></button>
+    <button class="nav-item" onclick="showAdminTab('notifs')"><span class="nav-icon">📢</span><span>Рассылка</span></button>
+    <button class="nav-item" onclick="showAdminTab('settings')"><span class="nav-icon">⚙️</span><span>Настройки</span></button>
+  </div>
+</div>
+
+<!-- ADMIN CLIENTS -->
+<div class="screen" id="s-admin-clients">
+  <div class="header">
+    <div class="section-title" style="margin:0">Клиенты</div>
+    <button class="btn btn-ghost btn-sm" style="width:auto" onclick="checkStatus()">🔄</button>
+  </div>
+
+  <!-- Pending approvals -->
+  <div id="pending-approvals"></div>
+
+  <div class="section-title">Все клиенты</div>
+  <div id="admin-clients-list"></div>
+
+  <div class="bottom-nav">
+    <button class="nav-item active" onclick="showAdminTab('clients')"><span class="nav-icon">👥</span><span>Клиенты</span></button>
+    <button class="nav-item" onclick="showAdminTab('notifs')"><span class="nav-icon">📢</span><span>Рассылка</span></button>
+    <button class="nav-item" onclick="showAdminTab('settings')"><span class="nav-icon">⚙️</span><span>Настройки</span></button>
+  </div>
+</div>
+
+<!-- ADMIN NOTIFS -->
+<div class="screen" id="s-admin-notifs">
+  <div class="header">
+    <div class="section-title" style="margin:0">Уведомления</div>
+  </div>
+
+  <div class="section-title">Всем клиентам</div>
+  <textarea class="inp" id="broadcast-text" rows="3" placeholder="Текст сообщения..." style="resize:vertical;font-family:'Inter',sans-serif"></textarea>
+  <button class="btn btn-primary" style="margin-top:8px;margin-bottom:24px" onclick="sendBroadcast()">📢 Отправить всем</button>
+
+  <div class="section-title">Персональное уведомление</div>
+  <div class="input-group">
+    <label class="input-label">Код клиента</label>
+    <input class="inp" id="personal-code" type="text" placeholder="IVAN001" style="text-transform:uppercase">
+  </div>
+  <textarea class="inp" id="personal-text" rows="3" placeholder="Текст сообщения..." style="resize:vertical;font-family:'Inter',sans-serif"></textarea>
+  <button class="btn btn-ghost" style="margin-top:8px" onclick="sendPersonal()">✉️ Отправить</button>
+
+  <div class="bottom-nav">
+    <button class="nav-item" onclick="showAdminTab('clients')"><span class="nav-icon">👥</span><span>Клиенты</span></button>
+    <button class="nav-item active" onclick="showAdminTab('notifs')"><span class="nav-icon">📢</span><span>Рассылка</span></button>
+    <button class="nav-item" onclick="showAdminTab('settings')"><span class="nav-icon">⚙️</span><span>Настройки</span></button>
+  </div>
+</div>
+
+<!-- ADMIN SETTINGS -->
+<div class="screen" id="s-admin-settings">
+  <div class="header">
+    <div class="section-title" style="margin:0">Настройки</div>
+  </div>
+
+  <div class="section-title">Тариф доставки</div>
+  <div class="card glowing">
+    <div style="text-align:center;color:var(--text3);font-size:12px;margin-bottom:4px">Текущий тариф</div>
+    <div class="tariff-current" id="tariff-display">570 ₽/кг</div>
+    <div class="divider"></div>
+    <div class="input-group" style="margin-bottom:10px">
+      <label class="input-label">Новый тариф (₽/кг)</label>
+      <input class="inp" id="tariff-input" type="number" placeholder="570">
     </div>
+    <button class="btn btn-primary" onclick="saveTariff()">Сохранить тариф</button>
+  </div>
 
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-        const v = (id) => document.getElementById(id).value;
-        const params = new URLSearchParams(location.search);
-        const send = (d) => { tg.sendData(JSON.stringify(d)); tg.close(); };
+  <div class="section-title">Реквизиты для оплаты</div>
+  <div class="card">
+    <div class="input-group">
+      <label class="input-label">ЮMoney (для мелких сумм)</label>
+      <input class="inp" id="req-ymoney" type="text" placeholder="4100 0000 0000 0000">
+    </div>
+    <div class="input-group" style="margin-bottom:0">
+      <label class="input-label">Карта / СБП</label>
+      <input class="inp" id="req-card" type="text" placeholder="2202 0000 0000 0000">
+    </div>
+    <div class="divider"></div>
+    <button class="btn btn-ghost btn-sm" onclick="saveRequisites()">Сохранить реквизиты</button>
+  </div>
 
-        let allParcels = [];
+  <div class="section-title">Телеграм бот</div>
+  <div class="card">
+    <div class="stat-row"><span class="stat-label">Bot Token</span><span class="stat-val" id="bot-token-display" style="font-size:11px;word-break:break-all">Не настроен</span></div>
+    <div class="divider"></div>
+    <div class="input-group" style="margin-bottom:10px">
+      <label class="input-label">Токен бота</label>
+      <input class="inp" id="bot-token-input" type="text" placeholder="123456:ABC-DEF...">
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="saveBotToken()">Сохранить токен</button>
+  </div>
 
-        function show(p) {
-            document.querySelectorAll('.page').forEach(x => x.classList.add('hidden'));
-            document.getElementById('pg-'+p).classList.remove('hidden');
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            if(p==='user') document.querySelectorAll('.nav-item')[0].classList.add('active');
-            if(p==='adm') document.getElementById('nav-ad').classList.add('active');
-        }
+  <div class="bottom-nav">
+    <button class="nav-item" onclick="showAdminTab('clients')"><span class="nav-icon">👥</span><span>Клиенты</span></button>
+    <button class="nav-item" onclick="showAdminTab('notifs')"><span class="nav-icon">📢</span><span>Рассылка</span></button>
+    <button class="nav-item active" onclick="showAdminTab('settings')"><span class="nav-icon">⚙️</span><span>Настройки</span></button>
+  </div>
+</div>
 
-        function renderParcels(filterCode = null) {
-            const pr = parseFloat(params.get('pr')) || 0;
-            const myCode = params.get('c');
-            const role = params.get('r') || 'Client';
-            
-            let h = "";
-            allParcels.forEach(p => {
-                const [w, s, d, cc, tr, pd] = p.split('|');
-                // Если админ ищет клиента ИЛИ это личный кабинет клиента
-                if ((filterCode && cc === filterCode) || (!filterCode && cc === myCode)) {
-                    const cost = (parseFloat(w) * pr).toFixed(0);
-                    const isReady = s.includes('ГОТОВ');
-                    h += `<div class="card">
-                        <span style="font-size:10px; color:${isReady?'var(--green)':'var(--blue)'}; font-weight:800;">${s}</span>
-                        <h3 style="margin:5px 0;">${tr}</h3>
-                        <div style="display:flex; justify-content:space-between; font-size:12px; opacity:0.6;">
-                            <span>${w}кг | ${d}</span>
-                            <b>${pd==='1'?'✅ ОПЛАЧЕНО':cost+' ₽'}</b>
-                        </div>
-                        ${(isReady && pd==='0' && role==='Client') ? `<button class="btn btn-liquid" onclick="send({a:'confirm_rek', t:'${tr}'})">Я ПОДТВЕРДИЛ ОПЛАТУ ✅</button>` : ''}
-                    </div>`;
-                }
-            });
-            return h || "<p style='text-align:center; opacity:0.5;'>Грузов не найдено</p>";
-        }
+<!-- ═══════════════════════════════════════ MODAL: BARCODE SCANNER -->
+<div class="modal-backdrop" id="modal-scanner">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <span style="font-weight:600">Сканер штрих-кода</span>
+      <button class="btn btn-ghost btn-sm" style="width:auto" onclick="closeScanner()">✕</button>
+    </div>
+    <div id="reader"></div>
+    <div id="scan-result" style="display:none" class="scan-result-box">
+      <div class="scan-result-track" id="scan-result-text"></div>
+    </div>
+    <button class="btn btn-primary" style="margin-top:14px" id="scan-confirm-btn" onclick="confirmScan()" disabled>Использовать</button>
+  </div>
+</div>
 
-        try {
-            const name = params.get('n'), code = params.get('c'), role = params.get('r') || 'Client';
-            if(!name || name === 'None') { show('reg'); }
-            else {
-                show('user');
-                document.getElementById('u-name').innerText = "Здравствуйте, " + name + "!";
-                document.getElementById('u-code').innerText = code;
-                document.getElementById('u-ava').innerText = name[0].toUpperCase();
-                document.getElementById('ref-link').innerText = "https://t.me/" + params.get('bn') + "?start=" + params.get('tid');
-                new QRCode(document.getElementById("qrcode"), { text: code, width: 180, height: 180 });
+<!-- ═══════════════════════════════════════ MODAL: CLIENT DETAIL (admin) -->
+<div class="modal-backdrop" id="modal-client">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <span style="font-weight:600" id="modal-client-title">Клиент</span>
+      <button class="btn btn-ghost btn-sm" style="width:auto" onclick="closeModal('modal-client')">✕</button>
+    </div>
+    <div id="modal-client-body"></div>
+  </div>
+</div>
 
-                if(role !== 'Client') document.getElementById('nav-ad').classList.remove('hidden');
+<script>
+// ═══════════════════════════════════════════════════════
+// DATA STORAGE — localStorage as simple DB
+// ═══════════════════════════════════════════════════════
+const DB = {
+  get(k,d=null){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch{return d}},
+  set(k,v){localStorage.setItem(k,JSON.stringify(v))},
+  del(k){localStorage.removeItem(k)}
+};
 
-                if(params.get('p')) {
-                    allParcels = params.get('p').split('!!');
-                    document.getElementById('parcel-list').innerHTML = renderParcels();
-                }
-            }
-        } catch(e) { show('reg'); }
+// defaults
+const defaultSettings = { tariff:570, ymoney:'', card:'', botToken:'' };
 
-        function calcSum(w) { 
-            const price = parseFloat(params.get('pr')) || 0;
-            document.getElementById('calc-res').innerText = "Сумма: " + (parseFloat(w||0)*price).toFixed(0) + " ₽"; 
-        }
+function getSettings(){ return DB.get('ntb_settings',defaultSettings); }
+function setSettings(s){ DB.set('ntb_settings',s); }
+function getClients(){ return DB.get('ntb_clients',[]); }
+function setClients(c){ DB.set('ntb_clients',c); }
+function getParcels(){ return DB.get('ntb_parcels',[]); }
+function setParcels(p){ DB.set('ntb_parcels',p); }
+function getNotifs(code){ return DB.get('ntb_notifs_'+code,[]); }
+function addNotif(code,msg){ const n=getNotifs(code); n.unshift({text:msg,time:new Date().toLocaleString('ru')}); DB.set('ntb_notifs_'+code,n.slice(0,50)); }
 
-        let sc;
-        function openScan(m) {
-            document.getElementById('scanner-modal').style.display = 'block';
-            sc = new Html5Qrcode("v-scan");
-            sc.start({ facingMode: "environment" }, { fps: 20, qrbox: {width: 280, height: 200} }, (t) => {
-                if(m === 'add_track') document.getElementById('adm-t').value = t;
-                if(m === 'check_user') {
-                    // Вместо отправки find, просто фильтруем список на месте!
-                    document.getElementById('scan-res').innerHTML = `<div class='card' style='border-color:var(--blue)'>Клиент: <b>${t}</b><div style='margin-top:15px;'>${renderParcels(t)}</div></div>`;
-                }
-                closeScan();
-                tg.HapticFeedback.notificationOccurred('success');
-            });
-        }
-        function closeScan() { if(sc) sc.stop(); document.getElementById('scanner-modal').style.display = 'none'; }
-    </script>
+// ═══════════════════════════════════════════════════════
+// TELEGRAM WEBAPP INIT
+// ═══════════════════════════════════════════════════════
+const tg = window.Telegram?.WebApp;
+if(tg){ tg.ready(); tg.expand(); tg.setHeaderColor('#0a0a0f'); tg.setBackgroundColor('#0a0a0f'); }
+
+let currentUser = null; // {telegramId, role, ...clientData}
+let scanMode = ''; // 'add','weigh','issue'
+let html5QrCode = null;
+let lastScan = '';
+let weighParcel = null;
+
+// ═══════════════════════════════════════════════════════
+// SCREEN MANAGEMENT
+// ═══════════════════════════════════════════════════════
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el = document.getElementById(id);
+  if(el) el.classList.add('active');
+}
+
+function showClientTab(tab){
+  if(tab==='home') { renderClientHome(); showScreen('s-client'); }
+  else if(tab==='parcels') { renderParcels(); showScreen('s-client-parcels'); }
+  else if(tab==='notifs') { renderNotifs(); showScreen('s-client-notifs'); }
+}
+
+function showOpTab(tab){
+  if(tab==='add') showScreen('s-op-add');
+  else if(tab==='weigh') showScreen('s-op-weigh');
+  else if(tab==='issue') showScreen('s-op-issue');
+}
+
+function showAdminTab(tab){
+  if(tab==='clients') { renderAdminClients(); showScreen('s-admin-clients'); }
+  else if(tab==='notifs') showScreen('s-admin-notifs');
+  else if(tab==='settings') { loadSettings(); showScreen('s-admin-settings'); }
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT & AUTH
+// ═══════════════════════════════════════════════════════
+function init(){
+  // Get telegram user id (or fake for demo)
+  const tgUser = tg?.initDataUnsafe?.user;
+  const tgId = tgUser?.id?.toString() || 'demo_' + Math.random().toString(36).substr(2,6);
+  
+  // Check if admin (hardcoded list or first user)
+  const clients = getClients();
+  const admins = DB.get('ntb_admins', []);
+  
+  // First launch — set first user as admin
+  if(clients.length===0 && admins.length===0){
+    DB.set('ntb_admins', [tgId]);
+  }
+
+  if(admins.includes(tgId) || DB.get('ntb_admins',[]).includes(tgId)){
+    currentUser = { telegramId:tgId, role:'admin', name: tgUser?.first_name||'Администратор' };
+    showAdminTab('clients');
+    return;
+  }
+
+  // Check operator
+  const operators = DB.get('ntb_operators',[]);
+  if(operators.includes(tgId)){
+    currentUser = { telegramId:tgId, role:'operator', name: tgUser?.first_name||'Оператор' };
+    showScreen('s-op-add');
+    return;
+  }
+
+  // Check existing client
+  const existing = clients.find(c=>c.telegramId===tgId);
+  if(existing){
+    currentUser = existing;
+    if(existing.status==='approved'){
+      renderClientHome();
+      showScreen('s-client');
+    } else if(existing.status==='pending'){
+      showScreen('s-pending');
+    } else {
+      toast('❌ Заявка отклонена. Обратитесь к администратору.');
+      showScreen('s-register');
+    }
+    return;
+  }
+
+  // New user — registration
+  showScreen('s-register');
+}
+
+// ═══════════════════════════════════════════════════════
+// REGISTRATION
+// ═══════════════════════════════════════════════════════
+function submitRegistration(){
+  const phone = document.getElementById('reg-phone').value.trim();
+  const code = document.getElementById('reg-code').value.trim().toUpperCase();
+  const name = document.getElementById('reg-name').value.trim();
+
+  if(!phone||!code||!name){ toast('⚠️ Заполните все поля'); return; }
+
+  const clients = getClients();
+  const tgId = currentUser?.telegramId || 'demo_'+Date.now();
+  const tgUser = tg?.initDataUnsafe?.user;
+
+  // Check code unique
+  if(clients.find(c=>c.personalCode===code)){ toast('⚠️ Этот код уже занят'); return; }
+
+  const newClient = {
+    telegramId: tgId,
+    telegramUsername: tgUser?.username||'',
+    personalCode: code,
+    phone, name,
+    status: 'pending',
+    createdAt: new Date().toISOString(),
+    role: 'client'
+  };
+  clients.push(newClient);
+  setClients(clients);
+  currentUser = newClient;
+
+  // Notify admins via bot (if configured)
+  sendBotNotifyAdmin(`🆕 Новая заявка!\nИмя: ${name}\nТел: ${phone}\nКод: ${code}\nTG: @${tgUser?.username||'—'}`);
+
+  toast('✅ Заявка отправлена!');
+  showScreen('s-pending');
+}
+
+function checkStatus(){
+  const clients = getClients();
+  if(!currentUser) { init(); return; }
+  const me = clients.find(c=>c.telegramId===currentUser.telegramId);
+  if(!me) { init(); return; }
+  currentUser = me;
+  if(me.status==='approved'){ renderClientHome(); showScreen('s-client'); }
+  else if(me.status==='pending'){ toast('⏳ Заявка ещё рассматривается'); }
+  else { toast('❌ Заявка отклонена'); showScreen('s-register'); }
+}
+
+// ═══════════════════════════════════════════════════════
+// CLIENT RENDER
+// ═══════════════════════════════════════════════════════
+function renderClientHome(){
+  if(!currentUser) return;
+  document.getElementById('client-greeting-name').textContent = currentUser.name;
+  document.getElementById('client-pcode').textContent = currentUser.personalCode;
+  document.getElementById('client-phone').textContent = currentUser.phone;
+
+  const myParcels = getParcels().filter(p=>p.clientCode===currentUser.personalCode);
+  document.getElementById('client-total').textContent = myParcels.length;
+  document.getElementById('client-unpaid').textContent = myParcels.filter(p=>p.status==='awaiting_payment').length;
+
+  // QR
+  const qrBox = document.getElementById('qr-box');
+  qrBox.innerHTML = '';
+  try {
+    new QRCode(qrBox, {
+      text: JSON.stringify({code:currentUser.personalCode,name:currentUser.name}),
+      width:180, height:180, colorDark:'#c8a96e', colorLight:'#1c1c26',
+      correctLevel: QRCode.CorrectLevel.M
+    });
+  } catch(e){ qrBox.innerHTML = '<div style="color:var(--text3);font-size:13px">QR недоступен</div>'; }
+}
+
+function renderParcels(){
+  const myParcels = getParcels().filter(p=>p.clientCode===currentUser.personalCode);
+  const container = document.getElementById('parcels-list');
+  if(!myParcels.length){ container.innerHTML='<div style="text-align:center;color:var(--text3);padding:40px 0">Посылок пока нет</div>'; return; }
+  
+  const settings = getSettings();
+  container.innerHTML = myParcels.map(p=>{
+    const statusMap = {
+      registered:'🟡 Зарегистрирована',
+      weighed:'🔵 Взвешена',
+      awaiting_payment:'🟠 Ожидает оплаты',
+      paid:'🟢 Оплачена',
+      issued:'✅ Выдана'
+    };
+    const paid = p.status==='paid'||p.status==='issued';
+    return `<div class="parcel-item">
+      <div class="parcel-icon">📦</div>
+      <div class="parcel-info">
+        <div class="parcel-track">${p.trackNumber}</div>
+        <div class="parcel-status">${statusMap[p.status]||p.status}</div>
+        ${p.weight?`<div style="font-size:11px;color:var(--text3);margin-top:2px">${p.weight} кг</div>`:''}
+      </div>
+      <div>
+        ${p.price?`<div class="parcel-price">${p.price}₽</div>`:''}
+        ${p.status==='awaiting_payment'?`<div style="font-size:10px;color:var(--warning);text-align:center">Оплатить</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+
+  // Show payment info if needed
+  const unpaid = myParcels.filter(p=>p.status==='awaiting_payment');
+  if(unpaid.length){
+    const s = getSettings();
+    const total = unpaid.reduce((acc,p)=>acc+(p.price||0),0);
+    container.innerHTML += `<div class="card" style="margin-top:16px;border-color:rgba(224,138,48,0.3)">
+      <div class="section-title" style="color:var(--warning)">Оплата</div>
+      <div class="stat-row"><span class="stat-label">К оплате итого</span><span style="font-weight:700;color:var(--accent)">${total}₽</span></div>
+      ${s.ymoney?`<div class="stat-row"><span class="stat-label">ЮMoney</span><span class="stat-val">${s.ymoney}</span></div>`:''}
+      ${s.card?`<div class="stat-row"><span class="stat-label">Карта/СБП</span><span class="stat-val">${s.card}</span></div>`:''}
+    </div>`;
+  }
+}
+
+function renderNotifs(){
+  const notifs = getNotifs(currentUser.personalCode);
+  const container = document.getElementById('notifs-list');
+  if(!notifs.length){ container.innerHTML='<div style="text-align:center;color:var(--text3);padding:40px 0">Уведомлений нет</div>'; return; }
+  container.innerHTML = notifs.map(n=>`<div class="notif-item">
+    <div class="notif-time">${n.time}</div>
+    <div class="notif-text">${n.text}</div>
+  </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+// OPERATOR FUNCTIONS
+// ═══════════════════════════════════════════════════════
+function addParcel(){
+  const clientCode = document.getElementById('op-client-code').value.trim().toUpperCase();
+  const track = document.getElementById('op-track').value.trim();
+  if(!clientCode||!track){ toast('⚠️ Заполните все поля'); return; }
+
+  const clients = getClients();
+  const client = clients.find(c=>c.personalCode===clientCode&&c.status==='approved');
+  if(!client){ toast('❌ Клиент не найден или не активен'); return; }
+
+  const parcels = getParcels();
+  if(parcels.find(p=>p.trackNumber===track)){ toast('⚠️ Этот трек уже зарегистрирован'); return; }
+
+  parcels.push({
+    trackNumber: track, clientCode, clientName: client.name,
+    status: 'registered', createdAt: new Date().toISOString(),
+    weight: null, price: null
+  });
+  setParcels(parcels);
+
+  addNotif(clientCode, `📦 Ваша посылка ${track} зарегистрирована на складе`);
+  sendBotNotify(client.telegramId, `📦 Посылка зарегистрирована!\nТрек: ${track}\nСтатус: На складе`);
+
+  document.getElementById('op-client-code').value='';
+  document.getElementById('op-track').value='';
+  toast('✅ Посылка добавлена!');
+}
+
+function lookupTrack(){
+  const track = document.getElementById('weigh-track').value.trim();
+  if(!track){ toast('⚠️ Введите трек-номер'); return; }
+
+  const parcels = getParcels();
+  weighParcel = parcels.find(p=>p.trackNumber===track);
+  if(!weighParcel){ toast('❌ Посылка не найдена'); return; }
+
+  document.getElementById('weigh-client-name').textContent = weighParcel.clientName;
+  document.getElementById('weigh-client-code').textContent = weighParcel.clientCode;
+  document.getElementById('weigh-track-show').textContent = weighParcel.trackNumber;
+  document.getElementById('weigh-info').style.display='block';
+  if(weighParcel.weight) document.getElementById('weigh-kg').value = weighParcel.weight;
+  calcPrice();
+}
+
+function calcPrice(){
+  const kg = parseFloat(document.getElementById('weigh-kg').value)||0;
+  const tariff = getSettings().tariff||570;
+  const price = Math.ceil(kg*tariff);
+  document.getElementById('weigh-display').textContent = kg.toFixed(2);
+  document.getElementById('weigh-price').textContent = price ? price+'₽' : '—';
+  document.getElementById('weigh-tariff-note').textContent = `тариф ${tariff}₽/кг`;
+}
+
+function saveWeight(){
+  if(!weighParcel){ toast('⚠️ Сначала найдите посылку'); return; }
+  const kg = parseFloat(document.getElementById('weigh-kg').value);
+  if(!kg||kg<=0){ toast('⚠️ Введите корректный вес'); return; }
+
+  const tariff = getSettings().tariff||570;
+  const price = Math.ceil(kg*tariff);
+
+  const parcels = getParcels();
+  const idx = parcels.findIndex(p=>p.trackNumber===weighParcel.trackNumber);
+  if(idx<0){ toast('❌ Ошибка'); return; }
+  parcels[idx].weight = kg;
+  parcels[idx].price = price;
+  parcels[idx].status = 'awaiting_payment';
+  setParcels(parcels);
+
+  const clients = getClients();
+  const client = clients.find(c=>c.personalCode===weighParcel.clientCode);
+  const settings = getSettings();
+  const payInfo = [settings.ymoney?`ЮMoney: ${settings.ymoney}`:'', settings.card?`Карта: ${settings.card}`:''].filter(Boolean).join('\n');
+
+  addNotif(weighParcel.clientCode, `⚖️ Посылка взвешена!\nТрек: ${weighParcel.trackNumber}\nВес: ${kg} кг\nК оплате: ${price}₽\n${payInfo}`);
+  if(client) sendBotNotify(client.telegramId, `⚖️ Посылка взвешена!\nТрек: ${weighParcel.trackNumber}\nВес: ${kg} кг\nК оплате: ${price}₽\n${payInfo||'Реквизиты у оператора'}`);
+
+  weighParcel = null;
+  document.getElementById('weigh-info').style.display='none';
+  document.getElementById('weigh-track').value='';
+  document.getElementById('weigh-kg').value='';
+  toast(`✅ Сохранено! К оплате: ${price}₽`);
+}
+
+function issueParcel(){
+  // Mark all paid parcels for this client as issued
+  toast('✅ Посылки выданы клиенту');
+  document.getElementById('issue-client-info').style.display='none';
+}
+
+// ═══════════════════════════════════════════════════════
+// ADMIN FUNCTIONS
+// ═══════════════════════════════════════════════════════
+function renderAdminClients(){
+  const clients = getClients();
+  const parcels = getParcels();
+
+  // Pending
+  const pending = clients.filter(c=>c.status==='pending');
+  const pendingEl = document.getElementById('pending-approvals');
+  if(pending.length){
+    pendingEl.innerHTML = `<div class="section-title" style="color:var(--warning)">⏳ Ожидают одобрения (${pending.length})</div>` +
+      pending.map(c=>`<div class="card" style="margin-bottom:10px;border-color:rgba(224,138,48,0.3)">
+        <div style="font-weight:600;margin-bottom:4px">${c.name}</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:2px">📱 ${c.phone} &nbsp; 🏷 ${c.personalCode}</div>
+        ${c.telegramUsername?`<div style="font-size:12px;color:var(--text3);margin-bottom:10px">@${c.telegramUsername}</div>`:'<div style="margin-bottom:10px"></div>'}
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-success btn-sm" style="flex:1" onclick="approveClient('${c.telegramId}')">✅ Одобрить</button>
+          <button class="btn btn-danger btn-sm" style="flex:1" onclick="rejectClient('${c.telegramId}')">❌ Отклонить</button>
+        </div>
+      </div>`).join('');
+  } else { pendingEl.innerHTML=''; }
+
+  // All clients
+  const approved = clients.filter(c=>c.status==='approved');
+  const container = document.getElementById('admin-clients-list');
+  if(!approved.length){ container.innerHTML='<div style="color:var(--text3);font-size:13px">Нет активных клиентов</div>'; return; }
+
+  container.innerHTML = approved.map(c=>{
+    const cp = parcels.filter(p=>p.clientCode===c.personalCode);
+    const initials = c.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    return `<div class="client-row" onclick="openClientDetail('${c.telegramId}')">
+      <div class="client-avatar">${initials}</div>
+      <div class="client-info">
+        <div class="client-name">${c.name}</div>
+        <div class="client-code">${c.personalCode} · ${c.phone}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:13px;font-weight:600;color:var(--accent)">${cp.length}</div>
+        <div style="font-size:11px;color:var(--text3)">посылок</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function approveClient(tgId){
+  const clients = getClients();
+  const idx = clients.findIndex(c=>c.telegramId===tgId);
+  if(idx<0) return;
+  clients[idx].status = 'approved';
+  setClients(clients);
+  addNotif(clients[idx].personalCode, '✅ Ваша заявка одобрена! Добро пожаловать в NaTaoBao');
+  sendBotNotify(tgId, '✅ Ваша заявка одобрена! Добро пожаловать в NaTaoBao. Откройте приложение для продолжения.');
+  renderAdminClients();
+  toast('✅ Клиент одобрен');
+}
+
+function rejectClient(tgId){
+  const clients = getClients();
+  const idx = clients.findIndex(c=>c.telegramId===tgId);
+  if(idx<0) return;
+  clients[idx].status = 'rejected';
+  setClients(clients);
+  sendBotNotify(tgId, '❌ К сожалению, ваша заявка отклонена. Обратитесь к администратору.');
+  renderAdminClients();
+  toast('❌ Клиент отклонён');
+}
+
+function openClientDetail(tgId){
+  const clients = getClients();
+  const c = clients.find(x=>x.telegramId===tgId);
+  if(!c) return;
+  const parcels = getParcels().filter(p=>p.clientCode===c.personalCode);
+  const unpaid = parcels.filter(p=>p.status==='awaiting_payment');
+
+  document.getElementById('modal-client-title').textContent = c.name;
+  document.getElementById('modal-client-body').innerHTML = `
+    <div class="stat-row"><span class="stat-label">Код</span><span class="stat-val" style="font-family:'Unbounded',sans-serif;font-size:12px;color:var(--accent)">${c.personalCode}</span></div>
+    <div class="stat-row"><span class="stat-label">Телефон</span><span class="stat-val">${c.phone}</span></div>
+    <div class="stat-row"><span class="stat-label">Telegram</span><span class="stat-val">@${c.telegramUsername||'—'}</span></div>
+    <div class="stat-row"><span class="stat-label">Посылок</span><span class="stat-val">${parcels.length}</span></div>
+    <div class="stat-row"><span class="stat-label">К оплате</span><span class="stat-val" style="color:var(--warning)">${unpaid.reduce((a,p)=>a+(p.price||0),0)}₽</span></div>
+    <div class="divider"></div>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button class="btn btn-ghost btn-sm" style="flex:1" onclick="adminSendPersonalFromDetail('${c.personalCode}')">✉️ Написать</button>
+      <button class="btn btn-danger btn-sm" style="flex:1" onclick="rejectClient('${tgId}');closeModal('modal-client')">🚫 Заблокировать</button>
+    </div>
+  `;
+  document.getElementById('modal-client').classList.add('active');
+}
+
+function adminSendPersonalFromDetail(code){
+  closeModal('modal-client');
+  showAdminTab('notifs');
+  document.getElementById('personal-code').value = code;
+}
+
+function sendBroadcast(){
+  const text = document.getElementById('broadcast-text').value.trim();
+  if(!text){ toast('⚠️ Введите текст'); return; }
+  const clients = getClients().filter(c=>c.status==='approved');
+  clients.forEach(c=>{
+    addNotif(c.personalCode, '📢 '+text);
+    sendBotNotify(c.telegramId, '📢 '+text);
+  });
+  document.getElementById('broadcast-text').value='';
+  toast(`✅ Отправлено ${clients.length} клиентам`);
+}
+
+function sendPersonal(){
+  const code = document.getElementById('personal-code').value.trim().toUpperCase();
+  const text = document.getElementById('personal-text').value.trim();
+  if(!code||!text){ toast('⚠️ Заполните поля'); return; }
+  const client = getClients().find(c=>c.personalCode===code);
+  if(!client){ toast('❌ Клиент не найден'); return; }
+  addNotif(code, text);
+  sendBotNotify(client.telegramId, text);
+  document.getElementById('personal-text').value='';
+  toast('✅ Уведомление отправлено');
+}
+
+function loadSettings(){
+  const s = getSettings();
+  document.getElementById('tariff-display').textContent = (s.tariff||570)+'₽/кг';
+  document.getElementById('tariff-input').value = s.tariff||570;
+  document.getElementById('req-ymoney').value = s.ymoney||'';
+  document.getElementById('req-card').value = s.card||'';
+  document.getElementById('bot-token-input').value = s.botToken||'';
+  document.getElementById('bot-token-display').textContent = s.botToken ? s.botToken.slice(0,12)+'...' : 'Не настроен';
+}
+
+function saveTariff(){
+  const t = parseInt(document.getElementById('tariff-input').value)||570;
+  const s = getSettings(); s.tariff = t; setSettings(s);
+  document.getElementById('tariff-display').textContent = t+'₽/кг';
+  toast(`✅ Тариф обновлён: ${t}₽/кг`);
+}
+
+function saveRequisites(){
+  const s = getSettings();
+  s.ymoney = document.getElementById('req-ymoney').value.trim();
+  s.card = document.getElementById('req-card').value.trim();
+  setSettings(s);
+  toast('✅ Реквизиты сохранены');
+}
+
+function saveBotToken(){
+  const t = document.getElementById('bot-token-input').value.trim();
+  const s = getSettings(); s.botToken = t; setSettings(s);
+  document.getElementById('bot-token-display').textContent = t ? t.slice(0,12)+'...' : 'Не настроен';
+  toast('✅ Токен сохранён');
+}
+
+// ═══════════════════════════════════════════════════════
+// SCANNER
+// ═══════════════════════════════════════════════════════
+function openScannerModal(mode){
+  scanMode = mode;
+  lastScan = '';
+  document.getElementById('scan-result').style.display='none';
+  document.getElementById('scan-confirm-btn').disabled = true;
+  document.getElementById('modal-scanner').classList.add('active');
+  
+  setTimeout(()=>{
+    html5QrCode = new Html5Qrcode('reader');
+    html5QrCode.start(
+      {facingMode:'environment'},
+      {fps:10, qrbox:{width:240,height:240},
+       formatsToSupport:[
+         Html5QrcodeSupportedFormats.QR_CODE,
+         Html5QrcodeSupportedFormats.CODE_128,
+         Html5QrcodeSupportedFormats.EAN_13,
+         Html5QrcodeSupportedFormats.EAN_8,
+         Html5QrcodeSupportedFormats.DATA_MATRIX
+       ]
+      },
+      (decoded)=>{ onScanSuccess(decoded); },
+      ()=>{}
+    ).catch(e=>{ console.log(e); });
+  },300);
+}
+
+function onScanSuccess(decoded){
+  lastScan = decoded;
+  document.getElementById('scan-result-text').textContent = decoded;
+  document.getElementById('scan-result').style.display='block';
+  document.getElementById('scan-confirm-btn').disabled = false;
+  if(html5QrCode) html5QrCode.pause();
+}
+
+function confirmScan(){
+  if(!lastScan) return;
+  closeScanner();
+
+  if(scanMode==='add'){
+    document.getElementById('op-track').value = lastScan;
+  } else if(scanMode==='weigh'){
+    document.getElementById('weigh-track').value = lastScan;
+    lookupTrack();
+  } else if(scanMode==='issue'){
+    // Parse QR data from client
+    try {
+      const data = JSON.parse(lastScan);
+      if(data.code){
+        const clients = getClients();
+        const client = clients.find(c=>c.personalCode===data.code&&c.status==='approved');
+        if(client){
+          const parcels = getParcels().filter(p=>p.clientCode===data.code);
+          const paid = parcels.filter(p=>p.status==='paid'||p.status==='awaiting_payment');
+          document.getElementById('issue-name').textContent = client.name;
+          document.getElementById('issue-code').textContent = data.code;
+          document.getElementById('issue-count').textContent = parcels.length;
+          document.getElementById('issue-paid').textContent = paid.length ? `${paid.length} к выдаче` : 'Нет';
+          document.getElementById('issue-client-info').style.display='block';
+        } else { toast('❌ Клиент не найден'); }
+      }
+    } catch { toast('⚠️ Нераспознанный QR'); }
+  }
+}
+
+function closeScanner(){
+  if(html5QrCode){
+    html5QrCode.stop().catch(()=>{});
+    html5QrCode.clear();
+    html5QrCode = null;
+  }
+  closeModal('modal-scanner');
+}
+
+// ═══════════════════════════════════════════════════════
+// MODALS
+// ═══════════════════════════════════════════════════════
+function closeModal(id){
+  document.getElementById(id).classList.remove('active');
+}
+document.querySelectorAll('.modal-backdrop').forEach(b=>{
+  b.addEventListener('click',e=>{ if(e.target===b){ if(b.id==='modal-scanner') closeScanner(); else closeModal(b.id); } });
+});
+
+// ═══════════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════════
+function toast(msg, dur=3000){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(()=>el.classList.remove('show'), dur);
+}
+
+// ═══════════════════════════════════════════════════════
+// BOT NOTIFY (via Telegram Bot API)
+// ═══════════════════════════════════════════════════════
+async function sendBotNotify(telegramId, text){
+  const token = getSettings().botToken;
+  if(!token||!telegramId||telegramId.startsWith('demo_')) return;
+  try {
+    await fetch(`https://api.telegram.org/bot${token}/sendMessage`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({chat_id:telegramId, text, parse_mode:'HTML'})
+    });
+  } catch(e){ console.log('Bot notify failed',e); }
+}
+
+async function sendBotNotifyAdmin(text){
+  const admins = DB.get('ntb_admins',[]);
+  for(const id of admins) await sendBotNotify(id, text);
+}
+
+// ═══════════════════════════════════════════════════════
+// DEMO DATA (for testing)
+// ═══════════════════════════════════════════════════════
+function seedDemoData(){
+  if(DB.get('ntb_demo_seeded')) return;
+  const clients = [
+    {telegramId:'demo_client1',telegramUsername:'ivan_test',personalCode:'IVAN001',phone:'+7 900 111 22 33',name:'Иван Петров',status:'approved',createdAt:new Date().toISOString(),role:'client'},
+    {telegramId:'demo_client2',telegramUsername:'maria_test',personalCode:'MARIA002',phone:'+7 900 444 55 66',name:'Мария Сидорова',status:'pending',createdAt:new Date().toISOString(),role:'client'},
+  ];
+  const parcels = [
+    {trackNumber:'CG123456785CN',clientCode:'IVAN001',clientName:'Иван Петров',status:'awaiting_payment',weight:1.5,price:855,createdAt:new Date().toISOString()},
+    {trackNumber:'LY987654321CN',clientCode:'IVAN001',clientName:'Иван Петров',status:'registered',weight:null,price:null,createdAt:new Date().toISOString()},
+  ];
+  setClients(clients);
+  setParcels(parcels);
+  addNotif('IVAN001','⚖️ Посылка CG123456785CN взвешена! Вес: 1.5 кг, к оплате: 855₽');
+  addNotif('IVAN001','📦 Посылка LY987654321CN зарегистрирована на складе');
+  DB.set('ntb_demo_seeded', true);
+}
+
+// ═══════════════════════════════════════════════════════
+// START
+// ═══════════════════════════════════════════════════════
+window.addEventListener('load', ()=>{
+  seedDemoData();
+  setTimeout(init, 800);
+});
+</script>
 </body>
 </html>
